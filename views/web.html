@@ -22,33 +22,34 @@
   <script src="js/socket.io.min.js"></script>
   <script src="js/underscore-min.js"></script>
   <script src="js/three.min.web.js"></script>
-  
   <script src="js/OBJLoader.js"></script>
   <script src="js/OrbitControls.web.js"></script>
   <script src="js/three.helper.js"></script>
   <script src="js/xml.parser.js"></script>
 
   <script>
-    var server = io.connect('alarrosa14.ddns.net:8080');
+    //var server = io.connect('alarrosa14.ddns.net:8080');
+    
     initThree();
-    loadPixelsFromXML('serverConf.xml', function(pixels){
+
+    XMLParser.loadPixelsFromXML('conf/serverConf.xml', function(pixels){
 
       animate();
       render();
 
-      server.on('frame', function(what){
-        var bufView = new Uint8Array(what);
+      //server.on('frame', function(what){
+        // var bufView = new Uint8Array(what);
         
-        for (var i = 0; i <= 3*90; i =  i + 3) {
-          var R = bufView[i];
-          var G = bufView[i+1];
-          var B = bufView[i+2]; 
+        // for (var i = 0; i < 3*XMLParser.getPixelsQty(); i =  i + 3) {
+        //   var R = bufView[i];
+        //   var G = bufView[i+1];
+        //   var B = bufView[i+2]; 
 
-          changePixelColor(pixels[i/3], R, G, B);
-        }
+        //   changePixelColor(pixels[i/3], R, G, B);
+        // }
 
         render();
-      });
+      //});
       
     });
   </script>

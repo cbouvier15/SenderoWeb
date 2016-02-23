@@ -1,20 +1,9 @@
 <?xml version="1.0" ?>
-<Configuration pixelQuantity='8' installationName='Pentakis'>
-	<Devices>
-		<Device id='1' name='Pentakis' type='mBed' ipAddress='192.168.2.10'
-			UDPPort='6454' enabled='1' />
-	</Devices>
+<Configuration pixelQuantity='91' installationName='Pentakis'>
 	<Meshes>
 		<Mesh name='cylinderShort' path='meshes/cylinderShort100.obj' />
 		<Mesh name='cylinderLong' path='meshes/cylinderLong100.obj' />
 	</Meshes>
-    <LedTypes>
-        <LedType id="0">
-            <ColorPair r0="255" g0="0" b0="0" r1="255" g1="0" b1="0"/>
-            <ColorPair r0="0" g0="255" b0="0" r1="0" g1="255" b1="0"/>
-            <ColorPair r0="0" g0="0" b0="255" r1="0" g1="0" b1="255"/>
-        </LedType>
-    </LedTypes>
 	<FrameConf>
 		<Pixel id='0' r='255' g='255' b='255' a='255' device='1' ledType="0">
 			<Render mesh='cylinderShort'>
@@ -653,26 +642,5 @@
 				<Position x='0' y='-57.46605' z='47.1026' />
 			</Render>
 		</Pixel>
-        
 	</FrameConf>
-	<ClientsProxys>
-        <Client TCPPort='5002' UDPPort='5003' id='1' name='Sound'
-        enabled='0' blendFactor='0.2' protocolType='0' />
-        <Client TCPPort='6010' UDPPort='6011' id='2' name='Video'
-        enabled='0' blendFactor='0.2' protocolType='0' />
-		<!--<Client TCPPort='6006' UDPPort='6007' id='3' name='Kinect'
-        enabled='0' blendFactor='0.2' protocolType='0' />-->
-		
-        
-        <!---->
-		<!--<Client TCPPort='6020' UDPPort='6030' id='2' name='Perlin' enabled='1' 
-			blendFactor='0.1' protocolType='1'/> 
-		<Client TCPPort='6020' UDPPort='6030' id='2' name='Video2'
-			enabled='1' blendFactor='0.1' protocolType='0' />-->
-        
-		<!--<Client TCPPort='6022' UDPPort='6024' id='4' name='Kinect'
-			enabled='0' blendFactor='0.2' protocolType='0' />-->
-	</ClientsProxys>
-	<MulticastConfig UDPPort='60000' groupAddress='226.0.33.13'
-		broadcastEnabled='0' ipAddress='190.132.32.13' />
 </Configuration>
