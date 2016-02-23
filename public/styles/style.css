@@ -1,0 +1,46 @@
+body {
+  font: 50px "Helvetica Neue", Arial, sans-serif;
+}
+
+#sendero-index .sendero-index-title {
+	color: black;
+	font-size: 100px;
+    font-weight: 100;
+    text-align: center;
+    margin: 10px;
+}
+
+#sendero-index .sendero-index-subtitle {
+	color: black;
+	text-align: center;
+    margin: 10px;
+    font-weight: 100;
+}
+
+#sendero-index .sendero-index-icons {
+	padding: 50px;
+	color: black; 
+	padding-left: 40%;
+}
+
+#web-logo{
+	background-image: url("../images/PhoneIcon.png");
+	display: block;
+	margin: 0 auto;
+	width: 150px;
+	height: 150px;
+	background-size: 150px 150px;
+    background-repeat: no-repeat;
+    float: left;
+}
+
+#cardboard-logo{
+	background-image: url("../images/CardboardIcon.png");
+	display: block;
+	margin: 0 auto;
+	width: 150px;
+	height: 150px;
+	background-size: 150px 150px;
+    background-repeat: no-repeat;
+    float: left;
+}

@@ -1,2 +1,3 @@
 # SenderoWeb
-Web interface for Sendero: A lightning system for artistic production.
+
+A Web interface for Sendero lightning system.
