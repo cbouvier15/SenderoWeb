@@ -28,14 +28,16 @@
   <script src="js/xml.parser.js"></script>
 
   <script>
-    //var server = io.connect('alarrosa14.ddns.net:8080');
     
-    initThree();
+    XMLParser.init('conf/serverConf.xml');
+    ThreeHelper.initThree(XMLParser.getInteractionServerFullURL());
 
-    XMLParser.loadPixelsFromXML('conf/serverConf.xml', function(pixels){
+    var server = io.connect(XMLParser.getStreamingServerFullURL());
 
-      animate();
-      render();
+    XMLParser.loadPixelsFromXML(function(pixels){
+
+      ThreeHelper.animate();
+      ThreeHelper.render();
 
       //server.on('frame', function(what){
         // var bufView = new Uint8Array(what);
@@ -48,7 +50,7 @@
         //   changePixelColor(pixels[i/3], R, G, B);
         // }
 
-        render();
+        ThreeHelper.render();
       //});
       
     });

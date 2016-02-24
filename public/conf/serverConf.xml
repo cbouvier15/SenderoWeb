@@ -4,6 +4,10 @@
 		<Mesh name='cylinderShort' path='meshes/cylinderShort100.obj' />
 		<Mesh name='cylinderLong' path='meshes/cylinderLong100.obj' />
 	</Meshes>
+	<Servers>
+		<Server name="StreamingServer" url="192.168.1.100" port="8080" />
+		<Server name="InteractionServer" url="192.168.1.100" port="8080" />
+	</Servers>
 	<FrameConf>
 		<Pixel id='0' r='255' g='255' b='255' a='255' device='1' ledType="0">
 			<Render mesh='cylinderShort'>

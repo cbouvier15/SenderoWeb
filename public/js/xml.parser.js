@@ -13,6 +13,8 @@ var XMLParser = function(){
 
   var pixelsQty = 0;
   var meshesPath = {};
+  var xmlDoc;
+  var serversData = {};
 
   var tagToVector3 = function(tag){
     var x = parseFloat(tag.getAttribute('x'));
@@ -70,10 +72,9 @@ var XMLParser = function(){
   // Public Methods
   // ###########################################################
   
-  // Main method. Parses the play's XML.
-  var loadPixelsFromXML = function(xmlPath, callBack){
-
-    var pixelsList = [];
+  // Initialization
+  var init = function(configurationFilePath){
+    var xmlPath = configurationFilePath;
 
     // Get XML file 
     // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -86,18 +87,26 @@ var XMLParser = function(){
 
     xmlhttp.open("GET",xmlPath,false);
     xmlhttp.send();
-    var xmlDoc=xmlhttp.responseXML;
-    
+    xmlDoc=xmlhttp.responseXML;
+
+    var servers = xmlDoc.getElementsByTagName("Servers")[0].getElementsByTagName("Server");
+    _.each(servers, function(server){
+      serversData[server.getAttribute('name') + '_' + 'URL'] = server.getAttribute('url');
+      serversData[server.getAttribute('name') + '_' + 'port'] = server.getAttribute('port');
+    });
+  };
+
+  // Main method. Parses the play's XML.
+  var loadPixelsFromXML = function(callBack){
+
+    var pixelsList = [];
+
     // Parse Pixels
     var pixelsDoc = xmlDoc.getElementsByTagName("Pixel");
     pixelsQty = pixelsDoc.length;
 
     // Parse Meshes and Paths
     parseMeshesTag(xmlDoc.getElementsByTagName("Meshes"));
-
-    if (pixelsQty <= 0){
-      console.log(pixelsQty + " pixels were loaded from " + xmlPath);
-    }
 
     var loaderFunction = function(object){
       pixelsList.push(object);
@@ -124,7 +133,7 @@ var XMLParser = function(){
       var up = positionVectors['up'];
       var position = positionVectors['position'];
 
-      addObject(meshesPath[objectModelName],position,up,front,color,ID,loaderFunction);
+      ThreeHelper.addObject(meshesPath[objectModelName],position,up,front,color,ID,loaderFunction);
     });
   };
 
@@ -133,13 +142,45 @@ var XMLParser = function(){
     return parseInt(pixelsQty);
   };
 
+  var getStreamingServerURL = function(){
+    return serversData['StreamingServer_URL'];
+  };
+
+  var getStreamingServerPort = function(){
+    return serversData['StreamingServer_port'];
+  };
+
+  var getStreamingServerFullURL = function(){
+    return serversData['StreamingServer_URL'] + ':' + serversData['StreamingServer_port'];
+  };
+
+  var getInteractionServerURL = function(){
+    return serversData['InteractionServer_URL'];
+  };
+
+  var getInteractionServerPort = function(){
+    return serversData['InteractionServer_port'];
+  }
+
+  var getInteractionServerFullURL = function(){
+    return serversData['InteractionServer_URL'] + ':' + serversData['InteractionServer_port'];
+  };
+
+
   // ###########################################################
   // XML Parser
   // ###########################################################
 
   var oPublic = {
+    init : init,
+    getStreamingServerURL: getStreamingServerURL,
+    getInteractionServerURL: getInteractionServerURL,
+    getStreamingServerPort: getStreamingServerPort,
+    getInteractionServerPort: getInteractionServerPort, 
+    getStreamingServerFullURL: getStreamingServerFullURL,
+    getInteractionServerFullURL: getInteractionServerFullURL,
     loadPixelsFromXML : loadPixelsFromXML,
-    getPixelsQty      : getPixelsQty,
+    getPixelsQty : getPixelsQty,
   };
   return oPublic;
 
