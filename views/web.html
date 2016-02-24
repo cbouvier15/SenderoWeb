@@ -26,33 +26,20 @@
   <script src="js/OrbitControls.web.js"></script>
   <script src="js/three.helper.js"></script>
   <script src="js/xml.parser.js"></script>
+  <script src="js/streaming.js"></script>
 
   <script>
     
+    // Modules Initialization
     XMLParser.init('conf/serverConf.xml');
     ThreeHelper.initThree(XMLParser.getInteractionServerFullURL());
-
-    var server = io.connect(XMLParser.getStreamingServerFullURL());
+    Streaming.init(XMLParser.getStreamingServerFullURL());
 
     XMLParser.loadPixelsFromXML(function(pixels){
-
       ThreeHelper.animate();
       ThreeHelper.render();
-
-      //server.on('frame', function(what){
-        // var bufView = new Uint8Array(what);
-        
-        // for (var i = 0; i < 3*XMLParser.getPixelsQty(); i =  i + 3) {
-        //   var R = bufView[i];
-        //   var G = bufView[i+1];
-        //   var B = bufView[i+2]; 
-
-        //   changePixelColor(pixels[i/3], R, G, B);
-        // }
-
-        ThreeHelper.render();
-      //});
-      
+      Streaming.receive();
+      Streaming.play(pixels);
     });
   </script>
 

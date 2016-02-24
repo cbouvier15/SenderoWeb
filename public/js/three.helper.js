@@ -49,9 +49,9 @@
         objects_intersect.push(intersectionSphere);
         var intersects = raycaster.intersectObjects( objects_intersect, true );
 
-        if ( intersects.length > 0 ) {
-          interaction_server.emit('interaction', (intersects[0].point.x).toString() + ',' + (intersects[0].point.y).toString() + ',' + (intersects[0].point.z).toString());
-        }
+        // if ( intersects.length > 0 ) {
+        //   interaction_server.emit('interaction', (intersects[0].point.x).toString() + ',' + (intersects[0].point.y).toString() + ',' + (intersects[0].point.z).toString());
+        // }
 
         shouldSend = false;
 
@@ -68,7 +68,7 @@
     // Three environment initialization
     function initThree(interactionServerFullURL) {
 
-      interaction_server = io.connect(interactionServerFullURL);
+      //interaction_server = io.connect(interactionServerFullURL);
 
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setClearColor( 0x212121, 1);
@@ -185,6 +185,19 @@
       /////////////////////////////////////////
     }
 
+    function update(frame, pixels){
+
+      var bufView = new Uint8Array(frame);
+        
+        for (var i = 0; i < 3*XMLParser.getPixelsQty(); i =  i + 3) {
+          var R = bufView[i];
+          var G = bufView[i+1];
+          var B = bufView[i+2]; 
+
+          ThreeHelper.changePixelColor(pixels[i/3], R, G, B);
+        }
+    }
+
     function animate() {
       requestAnimationFrame(animate);
       controls.update();
@@ -204,6 +217,7 @@
       addObject: addObject,
       animate: animate,
       render: render,
+      update: update,
     };
     return oPublic;
 

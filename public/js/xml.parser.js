@@ -89,6 +89,10 @@ var XMLParser = function(){
     xmlhttp.send();
     xmlDoc=xmlhttp.responseXML;
 
+    // Get pixelsQty
+    pixelsQty = parseInt(xmlDoc.getElementsByTagName("Configuration")[0].getAttribute('pixelQuantity'));
+
+    // Get servers info
     var servers = xmlDoc.getElementsByTagName("Servers")[0].getElementsByTagName("Server");
     _.each(servers, function(server){
       serversData[server.getAttribute('name') + '_' + 'URL'] = server.getAttribute('url');
@@ -103,7 +107,9 @@ var XMLParser = function(){
 
     // Parse Pixels
     var pixelsDoc = xmlDoc.getElementsByTagName("Pixel");
-    pixelsQty = pixelsDoc.length;
+    if(pixelsQty != pixelsDoc.length){
+      console.log("pixelsQty = " + pixelsQty + " != " + "pixelsDoc.length = " + pixelsDoc.length);
+    }
 
     // Parse Meshes and Paths
     parseMeshesTag(xmlDoc.getElementsByTagName("Meshes"));
