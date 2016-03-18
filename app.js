@@ -12,6 +12,16 @@ require('socket.io-stream')(io);
 // ********************************************************
 app.use(express.static('public'));
 
+io.on('connection', function(client){
+
+  console.log("Connected client...");
+
+  client.on('sendFrame', function(data){
+    client.broadcast.emit('frame', data);
+  });
+
+});
+
 // ********************************************************
 // Routing
 // ********************************************************
@@ -23,19 +33,19 @@ app.get('/', function (req, res) {
 
 // Web/Mobile app
 app.get('/web', function (req, res) {
-  	res.sendFile(__dirname + '/views/web.html');
+    res.sendFile(__dirname + '/views/web.html');
 });
 
 // Cardboard App
 app.get('/cardboard', function (req, res) {
-  	res.sendFile(__dirname + '/views/cardboard.html');
+    res.sendFile(__dirname + '/views/cardboard.html');
 });
 
 // ********************************************************
 // Running
 // ********************************************************
-app.listen(3000, function () {
-	console.log("*********************************************");
-	console.log("*** SenderoWeb listening on port 3000 ... ***");
-	console.log("*********************************************");
+server.listen(8080, function () {
+  console.log("*********************************************");
+  console.log("*** SenderoWeb listening on port 8080 ... ***");
+  console.log("*********************************************");
 });
