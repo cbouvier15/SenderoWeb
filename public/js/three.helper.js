@@ -16,6 +16,12 @@
     var windowHalfX = window.innerWidth / 2;
     var windowHalfY = window.innerHeight / 2;
 
+    var FRAME_RATE_MS = 1000/24;
+    var CLEAR_COLOR = 0x212121;
+    var CLEAR_ALPHA = 1;
+    var CAMERA_Z_POSITION = 300;
+    var AMBIENT_COLOR = 0x404040;
+
     /*** Intersection ***/
     var raycaster;
     var mouse;
@@ -57,8 +63,18 @@
 
         setTimeout(function(){
           shouldSend = true;
-        },1000/24);
+        }, FRAME_RATE_MS);
       }
+    }
+
+    function changePixelColor(object,r,g,b){
+
+      colorRGB = (r << 16) | (g << 8) | b;
+      object.traverse( function ( child ) {
+        if ( child instanceof THREE.Mesh ) {
+          child.material.color.set(colorRGB);
+        }
+      });
     }
 
     // ###########################################################
@@ -71,7 +87,7 @@
       //interaction_server = io.connect(interactionServerFullURL);
 
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      renderer.setClearColor( 0x212121, 1);
+      renderer.setClearColor( CLEAR_COLOR, CLEAR_ALPHA);
       renderer.setPixelRatio( window.devicePixelRatio );
       renderer.setSize( window.innerWidth, window.innerHeight );
 
@@ -80,7 +96,7 @@
       container.appendChild( element );
 
       camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-      camera.position.z = 300;
+      camera.position.z = CAMERA_Z_POSITION;
 
       // orbits
       controls = new THREE.OrbitControls(camera, element);
@@ -92,7 +108,7 @@
       // scene
       scene = new THREE.Scene();
 
-      var ambient = new THREE.AmbientLight( 0x404040 );
+      var ambient = new THREE.AmbientLight( AMBIENT_COLOR );
       scene.add( ambient );
 
       var material = new THREE.MeshBasicMaterial( {transparent: true, opacity: 0.0} );
@@ -108,16 +124,7 @@
       window.addEventListener('resize', onWindowResize, false );
     }
 
-    function changePixelColor(object,r,g,b){
-
-      colorRGB = (r << 16) | (g << 8) | b;
-      object.traverse( function ( child ) {
-        if ( child instanceof THREE.Mesh ) {
-          child.material.color.set(colorRGB);
-        }
-      });
-    }
-
+    // Load 3D Models and add to the scene
     function addObject(objModel, position, up, front, RGBColor, ID, objectGetter){
 
       var onProgress = function ( xhr ) {
@@ -185,6 +192,7 @@
       /////////////////////////////////////////
     }
 
+    // Update model's color based on the streaming
     function update(frame, pixels){
 
       var bufView = new Uint8Array(frame);
@@ -194,15 +202,17 @@
           var G = bufView[i+1];
           var B = bufView[i+2]; 
 
-          ThreeHelper.changePixelColor(pixels[i/3], R, G, B);
+          changePixelColor(pixels[i/3], R, G, B);
         }
     }
 
+    // ThreeJS stuffs
     function animate() {
       requestAnimationFrame(animate);
       controls.update();
     }
 
+    // More ThreeJS stuffs
     function render() {
       renderer.render( scene, camera );
     }
@@ -213,7 +223,6 @@
 
     var oPublic = {
       initThree: initThree,
-      changePixelColor: changePixelColor,
       addObject: addObject,
       animate: animate,
       render: render,

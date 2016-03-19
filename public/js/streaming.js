@@ -15,9 +15,17 @@ var Streaming = function(){
 	var buffer = [];
 	var buffering = true;
 
-	var BUFFERING_TIME_SECONDS = 1;
+	var BUFFERING_TIME_SECONDS = 3;
 	var FRAME_PER_SECOND = 24; 
-	var FRAME_RATE_MS = 1000/24;
+	var FRAME_RATE_MS = 1000/FRAME_PER_SECOND;
+
+	// First time buffering controller
+	function isBuffering(){
+		if (buffering){
+			buffering = (buffer.length < (BUFFERING_TIME_SECONDS * FRAME_PER_SECOND));
+		}
+		return buffering;
+	};
 
 	// ###########################################################
     // Public Methods
@@ -50,14 +58,6 @@ var Streaming = function(){
 				ThreeHelper.render();
 			}
 		}, FRAME_RATE_MS);
-	};
-
-	// First time buffering controller
-	function isBuffering(){
-		if (buffering){
-			buffering = (buffer.length < (BUFFERING_TIME_SECONDS * FRAME_PER_SECOND));
-		}
-		return buffering;
 	};
 
 	// ###########################################################
