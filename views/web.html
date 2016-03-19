@@ -34,6 +34,7 @@
     XMLParser.init('conf/serverConf.xml');
     ThreeHelper.initThree(XMLParser.getInteractionServerFullURL());
     Streaming.init(XMLParser.getStreamingServerFullURL());
+    // Interaction.init(XMLParser.getInteractionServerFullURL())
 
     XMLParser.loadPixelsFromXML(function(pixels){
       ThreeHelper.animate();

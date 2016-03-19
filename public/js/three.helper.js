@@ -55,9 +55,9 @@
         objects_intersect.push(intersectionSphere);
         var intersects = raycaster.intersectObjects( objects_intersect, true );
 
-        // if ( intersects.length > 0 ) {
-        //   interaction_server.emit('interaction', (intersects[0].point.x).toString() + ',' + (intersects[0].point.y).toString() + ',' + (intersects[0].point.z).toString());
-        // }
+        if ( intersects.length > 0 ) {
+          interaction_server.emit('interaction', (intersects[0].point.x).toString() + ',' + (intersects[0].point.y).toString() + ',' + (intersects[0].point.z).toString());
+        }
 
         shouldSend = false;
 
@@ -84,7 +84,7 @@
     // Three environment initialization
     function initThree(interactionServerFullURL) {
 
-      //interaction_server = io.connect(interactionServerFullURL);
+      interaction_server = io.connect(interactionServerFullURL);
 
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setClearColor( CLEAR_COLOR, CLEAR_ALPHA);

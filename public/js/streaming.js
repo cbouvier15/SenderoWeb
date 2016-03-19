@@ -15,15 +15,13 @@ var Streaming = function(){
 	var buffer = [];
 	var buffering = true;
 
-	var BUFFERING_TIME_SECONDS = 3;
+	var BUFFERING_TIME_SECONDS = 0.2;
 	var FRAME_PER_SECOND = 24; 
 	var FRAME_RATE_MS = 1000/FRAME_PER_SECOND;
 
 	// First time buffering controller
 	function isBuffering(){
-		if (buffering){
-			buffering = (buffer.length < (BUFFERING_TIME_SECONDS * FRAME_PER_SECOND));
-		}
+		buffering = (buffer.length < (BUFFERING_TIME_SECONDS * FRAME_PER_SECOND));
 		return buffering;
 	};
 
@@ -50,12 +48,13 @@ var Streaming = function(){
 			if (!isBuffering() && buffer.length > 0){
 
 				console.log("Buffer Size " + buffer.length);
-				var frame = buffer.pop();
+				var frame = buffer.shift();
 				var d = new Date();
 				var n = d.getMilliseconds();
 				console.log("Millis " + n);
 				ThreeHelper.update(frame, pixels);
 				ThreeHelper.render();
+
 			}
 		}, FRAME_RATE_MS);
 	};
