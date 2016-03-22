@@ -16,8 +16,15 @@ io.on('connection', function(client){
 
   console.log("Connected client...");
 
-  client.on('sendFrame', function(data){
-    client.broadcast.emit('frame', data);
+  client.on('sendFrame', function(frameData){
+
+    var timestamp = Date.now();
+    var frame = {
+      'timestamp': timestamp,
+      'data': frameData
+    };
+
+    client.broadcast.emit('frame', frame);
   });
 
 });
