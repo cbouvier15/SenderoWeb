@@ -56,7 +56,10 @@
         var intersects = raycaster.intersectObjects( objects_intersect, true );
 
         if ( intersects.length > 0 ) {
-          interaction_server.emit('interaction', (intersects[0].point.x).toString() + ',' + (intersects[0].point.y).toString() + ',' + (intersects[0].point.z).toString());
+          interaction_server.emit('interaction', {
+            name: "drag",
+            data: (intersects[0].point.x).toString() + ',' + (intersects[0].point.y).toString() + ',' + (intersects[0].point.z).toString()
+          });
         }
 
         shouldSend = false;
