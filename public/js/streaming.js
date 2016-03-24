@@ -15,7 +15,7 @@ var Streaming = function(){
 	var buffer = [];
 	var buffering = true;
 
-	var BUFFERING_TIME_SECONDS = 0.2;
+	var BUFFERING_TIME_SECONDS = 1;
 	var FRAME_PER_SECOND = 24; 
 	var FRAME_RATE_MS = 1000/FRAME_PER_SECOND;
 	var NEXT_PLAYOUT_TIME = FRAME_RATE_MS;

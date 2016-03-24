@@ -1,12 +1,12 @@
 <?xml version="1.0" ?>
-<Configuration pixelQuantity='91' installationName='Pentakis'>
+<Configuration pixelQuantity='3' installationName='Pentakis'>
 	<Meshes>
 		<Mesh name='cylinderShort' path='meshes/cylinderShort100.obj' />
 		<Mesh name='cylinderLong' path='meshes/cylinderLong100.obj' />
 	</Meshes>
 	<Servers>
-		<Server name="StreamingServer" url="alarrosa14.ddns.net" port="8080" />
-		<Server name="InteractionServer" url="alarrosa14.ddns.net" port="8081" />
+		<Server name="StreamingServer" url="localhost" port="8080" />
+		<Server name="InteractionServer" url="localhost" port="8081" />
 	</Servers>
 	<FrameConf>
         <Pixel id='0' r='255' g='255' b='255' a='255' device='1' ledType="0">
@@ -37,7 +37,7 @@
 				<Position x='70.0423' y='14.1775' z='-20.34885' />
 			</Render>
 		</Pixel>
-		<Pixel id='4' r='255' g='255' b='255' a='255' device='1' ledType="1">
+		<!-- <Pixel id='4' r='255' g='255' b='255' a='255' device='1' ledType="1">
 			<Render mesh='cylinderLong'>
 				<Front x='0' y='-0.28355' z='0' />
 				<Up x='0.110607975487269' y='0' z='0.972022839820529' />
@@ -645,7 +645,7 @@
 				<Up x='0.53360247055402' y='0.708328084653321' z='-0.633547400109695' />
 				<Position x='0' y='-57.46605' z='47.1026' />
 			</Render>
-		</Pixel>
+		</Pixel> -->
         
 	</FrameConf>
 </Configuration>
