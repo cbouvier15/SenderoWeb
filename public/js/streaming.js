@@ -125,20 +125,28 @@ var Streaming = function(){
 		setInterval(function(){
 
 			if (!isBuffering() && buffer.length > 0){
-				
-				// Get frame from Buffer
-				var frame = buffer.shift();
-				frame.real_playout_time = Date.now();
-				
-				// Playout frame
-				ThreeHelper.update(frame.data, pixels);
-				ThreeHelper.render();
+                // Get frame from Buffer
+                var frame;
+                do {
+                    frame = buffer.shift();
+                } while (frame !== undefined && Date.now() - frame.playout_time - (BUFFERING_TIME_SECONDS*1000) > (BUFFERING_TIME_SECONDS*1000)/2);
 
-				// Schedule next frame
-				NEXT_PLAYOUT_TIME = frame.real_playout_time - buffer[0].playout_time;
+                if (frame !== undefined) {
+
+                    frame.real_playout_time = Date.now();
+                    
+                    // Playout frame
+                    ThreeHelper.update(frame.data, pixels);
+                    ThreeHelper.render();
+
+                    // Schedule next frame
+                    NEXT_PLAYOUT_TIME = frame.real_playout_time - buffer[0].playout_time;
+
+                }
 			}else{
 				console.log("Is buffering...");
 			}
+
 		}, NEXT_PLAYOUT_TIME);
 	};
 
