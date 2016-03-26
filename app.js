@@ -19,12 +19,14 @@ io.on('connection', function(client){
   client.on('sendFrame', function(frameData){
 
     var timestamp = Date.now();
-    var frame = {
+    /*var frame = {
       'timestamp': timestamp,
       'data': frameData
-    };
+    };*/
 
-    client.broadcast.emit('frame', frame);
+   console.log(frameData.id + '-' + timestamp);
+
+    client.broadcast.emit('frame', frameData);
   });
 
 });

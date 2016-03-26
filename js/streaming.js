@@ -15,13 +15,13 @@ var Streaming = function(){
 	var buffer = [];
 	var buffering = true;
 
-	var BUFFERING_TIME_SECONDS = 0.2;
+	var BUFFERING_TIME_SECONDS = 0.5;
 	var FRAME_PER_SECOND = 24; 
 	var FRAME_RATE_MS = 1000/FRAME_PER_SECOND;
 	var NEXT_PLAYOUT_TIME = FRAME_RATE_MS;
 
-	var PRINT_BASE_PLAYOUT_TIME = false;
-	var PRINT_JITTER_COMPENSATION = false;
+	var PRINT_BASE_PLAYOUT_TIME = true;
+	var PRINT_JITTER_COMPENSATION = true;
 	var GENERATE_DEBUG_NOISE = false;
 
 	Array.prototype.min = function() {
@@ -136,6 +136,7 @@ var Streaming = function(){
                     frame.real_playout_time = Date.now();
                     
                     // Playout frame
+		    console.log(frame);
                     ThreeHelper.update(frame.data, pixels);
                     ThreeHelper.render();
 
