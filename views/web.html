@@ -27,14 +27,15 @@
   <script src="js/three.helper.js"></script>
   <script src="js/xml.parser.js"></script>
   <script src="js/streaming.js"></script>
+  <script src="js/interaction.js"></script>
 
   <script>
     
     // Modules Initialization
     XMLParser.init('conf/serverConf.xml');
-    ThreeHelper.initThree(XMLParser.getInteractionServerFullURL());
-    Streaming.init(XMLParser.getStreamingServerFullURL());
-    // Interaction.init(XMLParser.getInteractionServerFullURL())
+    ThreeHelper.initThree(XMLParser.getFPS());
+    Streaming.init(XMLParser.getStreamingServerFullURL(), XMLParser.getFPS());
+    Interaction.init(XMLParser.getInteractionServerFullURL(), XMLParser.getFPS(), ThreeHelper.getScene(), ThreeHelper.getRenderer(), ThreeHelper.getCamera());
 
     XMLParser.loadPixelsFromXML(function(pixels){
       ThreeHelper.animate();
@@ -42,6 +43,7 @@
       Streaming.receive();
       Streaming.play(pixels);
     });
+
   </script>
 
 </html>

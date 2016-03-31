@@ -11,6 +11,7 @@ var XMLParser = function(){
   // Private
   // ###########################################################  
 
+  var fps = 30;
   var pixelsQty = 0;
   var meshesPath = {};
   var xmlDoc;
@@ -92,6 +93,10 @@ var XMLParser = function(){
     // Get pixelsQty
     pixelsQty = parseInt(xmlDoc.getElementsByTagName("Configuration")[0].getAttribute('pixelQuantity'));
 
+    // Get fps
+    if (xmlDoc.getElementsByTagName("Configuration")[0].getAttribute('fps'))
+      fps = xmlDoc.getElementsByTagName("Configuration")[0].getAttribute('fps');
+
     // Get servers info
     var servers = xmlDoc.getElementsByTagName("Servers")[0].getElementsByTagName("Server");
     _.each(servers, function(server){
@@ -148,6 +153,10 @@ var XMLParser = function(){
     return parseInt(pixelsQty);
   };
 
+  var getFPS = function() {
+    return parseInt(fps);
+  };
+
   var getStreamingServerURL = function(){
     return serversData['StreamingServer_URL'];
   };
@@ -187,6 +196,7 @@ var XMLParser = function(){
     getInteractionServerFullURL: getInteractionServerFullURL,
     loadPixelsFromXML : loadPixelsFromXML,
     getPixelsQty : getPixelsQty,
+    getFPS: getFPS
   };
   return oPublic;
 

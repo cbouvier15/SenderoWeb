@@ -16,9 +16,9 @@ var Streaming = function(){
 	var buffering = true;
 
 	var BUFFERING_TIME_SECONDS = 0.2;
-	var FRAME_PER_SECOND = 24; 
-	var FRAME_RATE_MS = 1000/FRAME_PER_SECOND;
-	var NEXT_PLAYOUT_TIME = FRAME_RATE_MS;
+	var FRAME_PER_SECOND; 
+	var FRAME_RATE_MS;
+	var NEXT_PLAYOUT_TIME;
 
 	var PRINT_BASE_PLAYOUT_TIME = false;
 	var PRINT_JITTER_COMPENSATION = false;
@@ -33,7 +33,10 @@ var Streaming = function(){
     // ###########################################################
 
     // Initialize module
-	function init(streaming_server_url){
+	function init(streaming_server_url, fps){
+		FRAME_PER_SECOND = fps; 
+		FRAME_RATE_MS = 1000/fps;
+		NEXT_PLAYOUT_TIME = FRAME_RATE_MS;
 		streaming_server = io.connect(streaming_server_url);
 	};
 

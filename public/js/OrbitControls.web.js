@@ -679,7 +679,7 @@
 
         }
 
-        var shouldSend = true;
+        // var shouldSend = true;
         function touchmove( event ) {
 
             if ( scope.enabled === false ) return;
@@ -693,31 +693,31 @@
 
                 case 1:
 
-                    if (shouldSend){
-                        mouse.x = ( event.touches[0].pageX / (renderer.domElement.width / 2) ) * 2 - 1;
-                        mouse.y = - ( event.touches[0].pageY / (renderer.domElement.height / 2) ) * 2 + 1;
+                    // if (shouldSend){
+                    //     mouse.x = ( event.touches[0].pageX / (renderer.domElement.width / 2) ) * 2 - 1;
+                    //     mouse.y = - ( event.touches[0].pageY / (renderer.domElement.height / 2) ) * 2 + 1;
 
-                        console.log(mouse.x, mouse.y);
+                    //     console.log(mouse.x, mouse.y);
 
-                        raycaster.setFromCamera( mouse, camera );
+                    //     raycaster.setFromCamera( mouse, camera );
 
-                        var objects_intersect = [];
-                        objects_intersect.push(intersectionSphere);
-                        var intersects = raycaster.intersectObjects( objects_intersect, true );
+                    //     var objects_intersect = [];
+                    //     objects_intersect.push(intersectionSphere);
+                    //     var intersects = raycaster.intersectObjects( objects_intersect, true );
 
-                        if ( intersects.length > 0 ) {
-                          interaction_server.emit('interaction', (intersects[0].point.x).toString() + ',' + (intersects[0].point.y).toString() + ',' + (intersects[0].point.z).toString());
-                          //console.log((intersects[0].point.x).toString() + ',' + (intersects[0].point.y).toString() + ',' + (intersects[0].point.z).toString());
-                        }else{
-                          //console.log('no macho!');
-                        }
+                    //     if ( intersects.length > 0 ) {
+                    //       interaction_server.emit('interaction', (intersects[0].point.x).toString() + ',' + (intersects[0].point.y).toString() + ',' + (intersects[0].point.z).toString());
+                    //       //console.log((intersects[0].point.x).toString() + ',' + (intersects[0].point.y).toString() + ',' + (intersects[0].point.z).toString());
+                    //     }else{
+                    //       //console.log('no macho!');
+                    //     }
 
-                        shouldSend = false;
+                    //     shouldSend = false;
 
-                        setTimeout(function(){
-                          shouldSend = true;
-                        },1000/24);
-                    }
+                    //     setTimeout(function(){
+                    //       shouldSend = true;
+                    //     },1000/24);
+                    // }
 
                     break;
 
