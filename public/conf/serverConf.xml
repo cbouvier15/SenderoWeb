@@ -8,6 +8,7 @@
 		<Server name="StreamingServer" url="alarrosa14.ddns.net" port="8080" />
 		<Server name="InteractionServer" url="alarrosa14.ddns.net" port="8081" />
 	</Servers>
+	<!-- 54.201.212.24 -->
 	<FrameConf>
         <Pixel id='0' r='255' g='255' b='255' a='255' device='1' ledType="0">
 			<Render mesh='cylinderShort'>

@@ -13,16 +13,10 @@ var Streaming = function(){
 
 	var streaming_server;
 	var buffer = [];
-	var buffering = true;
 
-	var BUFFERING_TIME_SECONDS = 0.2;
-	var FRAME_PER_SECOND; 
-	var FRAME_RATE_MS;
-	var NEXT_PLAYOUT_TIME;
-
-	var PRINT_BASE_PLAYOUT_TIME = false;
-	var PRINT_JITTER_COMPENSATION = false;
-	var GENERATE_DEBUG_NOISE = false;
+	var FIXED_BUFFERING_TIME_MS = 300;
+	var CHECK_RATE = 1000/300;
+	var OFFSET_CALCULATION_BUFFER_SIZE = 720;
 
 	Array.prototype.min = function() {
 	  return Math.min.apply(null, this);
@@ -33,10 +27,7 @@ var Streaming = function(){
     // ###########################################################
 
     // Initialize module
-	function init(streaming_server_url, fps){
-		FRAME_PER_SECOND = fps; 
-		FRAME_RATE_MS = 1000/fps;
-		NEXT_PLAYOUT_TIME = FRAME_RATE_MS;
+	function init(streaming_server_url){
 		streaming_server = io.connect(streaming_server_url);
 	};
 
@@ -45,25 +36,22 @@ var Streaming = function(){
 	// ------------------------------------------------------------
 
 	// 1. Base playout time calculation
-	var d = [];
+	// Keep a moving average of the most recently 30 seconds of playout
+	var index = 0;
+	var d = new Array(OFFSET_CALCULATION_BUFFER_SIZE);
+	d.fill(Number.MAX_SAFE_INTEGER);
+	var min = Number.MAX_SAFE_INTEGER;
 
 	function base_playout_time_calculation(packet){
 		var d_n = packet.arrival_time - packet.timestamp;
-		d.push(d_n);
+
+		d[index] = d_n;
+		index = ((index + 1) % OFFSET_CALCULATION_BUFFER_SIZE);
+		
 		var offset = d.min();
-
-		if (PRINT_BASE_PLAYOUT_TIME){
-			console.log('d(n)=', d_n);
-			console.log('T_L(n)=', packet.timestamp);
-			console.log('T_R(n)=', packet.arrival_time);
-			console.log('offset=', offset);
-			console.log('base_playout_time(n)=', packet.timestamp + offset);
-			console.log('--------------------');
-		}
-
+		min = offset;
 		// return base_playout_time for the current packet
-		// base_playout_time(n) = packet.timestamp + offset
-		return packet.timestamp + offset;
+		return offset;
 	}
 
 	// 2. Jitter compensation
@@ -71,7 +59,7 @@ var Streaming = function(){
 	var prev_packet_arrival_time = 0;
 	var prev_packet_timestamp = 0;
 
-	function jitter_estimation(packet, base_playout_time){
+	function jitter_estimation(packet){
 		// Relative difference 
 		D_i_j = (prev_packet_arrival_time - prev_packet_timestamp) - (packet.arrival_time - packet.timestamp)
 		// Current jitter
@@ -80,46 +68,39 @@ var Streaming = function(){
 		prev_jitter = Ji;
 		prev_packet_arrival_time = packet.arrival_time;
 		prev_packet_timestamp = packet.timestamp;
-
-		if (PRINT_JITTER_COMPENSATION){
-			console.log('D_i_j=', D_i_j);
-			console.log('D_i_j=', Ji);
-			console.log('--------------------');
-		}
-
 		// Fixed playout time
-		return base_playout_time + 3*Ji;
+		return 3*Ji;
 	};
-
-	// Generate random noise to simulate playout variable components
-	function generate_random_noise(packet){
-		var noise = Math.random()*20;
-		return packet.arrival_time + noise;
-	}
 
 	// Receive and store a new frame
 	// Frame format
 	// {
+	//  id: int
 	//	timestamp: epoch milliseconds,
 	//  data: []
 	// }
 	function receive(){
-		streaming_server.on('frame', function(frame){
-			
+		streaming_server.on('frame', function(frame){			
+
 			// Arrival time registering
 			frame.arrival_time = Date.now();
 			
-			if (GENERATE_DEBUG_NOISE){
-				frame.arrival_time = generate_random_noise(frame);
-			}
 			// Base playout time calculation
-			var base_playout_time = base_playout_time_calculation(frame);
+			var base = base_playout_time_calculation(frame);
+			
 			// Jitter compensation
-			var fixed_playout_time = jitter_estimation(frame, base_playout_time);
-			frame.playout_time = fixed_playout_time;
+			var jitter = jitter_estimation(frame);
+			
+			// Payout time
+			frame.playout_time = frame.timestamp + base + jitter + FIXED_BUFFERING_TIME_MS;
 
 			// Insert into playout buffer
-			buffer.push(frame);
+			if (frame.playout_time >= frame.arrival_time){
+				buffer.push(frame);
+			}else{
+				// Discarded frame
+				console.log("Discarded frame", frame.id, frame.playout_time, frame.arrival_time);
+			}
 		});
 	};
 
@@ -127,36 +108,23 @@ var Streaming = function(){
 	function play(pixels){
 		setInterval(function(){
 
-			if (!isBuffering() && buffer.length > 0){
-                // Get frame from Buffer
-                var frame;
-                do {
-                    frame = buffer.shift();
-                } while (frame !== undefined && Date.now() - frame.playout_time - (BUFFERING_TIME_SECONDS*1000) > (BUFFERING_TIME_SECONDS*1000)/2);
+			if (buffer.length > 0){
+			
+				var now = Date.now();
+				// XXX: Fix the inactive tab issue
+				if (now > buffer[0].playout_time){
+					
+					var frame = buffer.shift();
 
-                if (frame !== undefined) {
-
-                    frame.real_playout_time = Date.now();
-                    
-                    // Playout frame
-                    ThreeHelper.update(frame.data, pixels);
-                    ThreeHelper.render();
-
-                    // Schedule next frame
-                    NEXT_PLAYOUT_TIME = frame.real_playout_time - buffer[0].playout_time;
-
-                }
+					// Playout frame
+					ThreeHelper.update(frame.data, pixels);
+					ThreeHelper.render();
+					console.log(frame.id, now, frame.timestamp, frame.arrival_time, frame.playout_time, buffer.length);			
+				}
 			}else{
-				console.log("Is buffering...");
+				console.log("Is buffering... ", buffer.length);
 			}
-
-		}, NEXT_PLAYOUT_TIME);
-	};
-
-	// First time buffering controller
-	function isBuffering(){
-		buffering = (buffer.length < (BUFFERING_TIME_SECONDS * FRAME_PER_SECOND));
-		return buffering;
+		}, CHECK_RATE);
 	};
 
 	// ###########################################################
