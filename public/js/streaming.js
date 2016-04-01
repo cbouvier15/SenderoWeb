@@ -80,7 +80,7 @@ var Streaming = function(){
 	//  data: []
 	// }
 	function receive(){
-		streaming_server.on('frame', function(frame){			
+		streaming_server.on('frame', function(frame){
 
 			// Arrival time registering
 			frame.arrival_time = Date.now();
@@ -108,20 +108,19 @@ var Streaming = function(){
 	function play(pixels){
 		setInterval(function(){
 
-			if (buffer.length > 0){
-			
+			if (buffer.length > 0) {
 				var now = Date.now();
 				// XXX: Fix the inactive tab issue
-				if (now > buffer[0].playout_time){
-					
+				if (now > buffer[0].playout_time) {
 					var frame = buffer.shift();
 
 					// Playout frame
+					// console.log(frame.data);
 					ThreeHelper.update(frame.data, pixels);
 					ThreeHelper.render();
-					console.log(frame.id, now, frame.timestamp, frame.arrival_time, frame.playout_time, buffer.length);			
+					// console.log(frame.id, now, frame.timestamp, frame.arrival_time, frame.playout_time, buffer.length);
 				}
-			}else{
+			} else {
 				console.log("Is buffering... ", buffer.length);
 			}
 		}, CHECK_RATE);

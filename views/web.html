@@ -34,7 +34,7 @@
     // Modules Initialization
     XMLParser.init('conf/serverConf.xml');
     ThreeHelper.initThree(XMLParser.getFPS());
-    Streaming.init(XMLParser.getStreamingServerFullURL(), XMLParser.getFPS());
+    Streaming.init(XMLParser.getStreamingServerFullURL());
     Interaction.init(XMLParser.getInteractionServerFullURL(), XMLParser.getFPS(), ThreeHelper.getScene(), ThreeHelper.getRenderer(), ThreeHelper.getCamera());
 
     XMLParser.loadPixelsFromXML(function(pixels){

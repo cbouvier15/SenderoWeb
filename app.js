@@ -17,9 +17,10 @@ io.on('connection', function(client){
   console.log("Connected client...");
 
   client.on('sendFrame', function(frameData){
-    var timestamp = Date.now();
-    console.log(frameData.id + '-' + timestamp);
-    client.broadcast.emit('frame', frameData);
+    client.broadcast.emit('frame', {
+      timestamp: frameData.readUIntBE(0, 8), // Read an 8 byte unsigned int that is BigEndian.
+      data: frameData.slice(8) // discard the timestamp from frameData
+    });
   });
 
 });
