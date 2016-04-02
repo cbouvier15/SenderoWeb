@@ -5,8 +5,8 @@
 		<Mesh name='cylinderLong' path='meshes/cylinderLong100.obj' />
 	</Meshes>
 	<Servers>
-		<Server name="StreamingServer" url="http://app.sendero.uy" port="8080" />
-		<!-- <Server name="StreamingServer" url="localhost" port="8080" /> -->
+		<!-- <Server name="StreamingServer" url="http://app.sendero.uy" port="8080" /> -->
+		<Server name="StreamingServer" url="localhost" port="8080" />
 		<!-- <Server name="InteractionServer" url="alarrosa14.ddns.net" port="8081" /> -->
 		<Server name="InteractionServer" url="localhost" port="8081" />
 	</Servers>

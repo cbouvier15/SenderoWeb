@@ -112,7 +112,7 @@ var ThreeHelper = function(){
 
     manager.onLoad = function (){
       if(ID==XMLParser.getPixelsQty()-1){
-	canvas_loader.hide();
+        canvas_loader.hide();
       }
     }
 
