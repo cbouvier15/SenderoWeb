@@ -1,8 +1,6 @@
 var io = require('socket.io-client');
-// var socket = io.connect('http://54.201.212.24:8080');
-var socket = io.connect('http://localhost:8080');
-
-console.log("Connected");
+var socket = io.connect('http://app.sendero.uy:8080');
+// var socket = io.connect('http://localhost:8080');
 
 // Add a connect listener
 socket.on('connect', function(socket) {
@@ -48,7 +46,7 @@ setTimeout(function(){
 
 		console.log(id + '-' + timestamp);
 		id = id + 1;
-		socket.emit('sendFrame', frame);
+		socket.emit('testFrame', frame);
 		
 	}, 1000/24);
 }, 5000);

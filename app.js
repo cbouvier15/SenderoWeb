@@ -14,13 +14,19 @@ app.use(express.static('public'));
 
 io.on('connection', function(client){
 
-  console.log("Connected client...");
+  console.log("Connected client: ", client.id);
 
   client.on('sendFrame', function(frameData){
     client.broadcast.emit('frame', {
-      timestamp: frameData.readUIntBE(0, 8), // Read an 8 byte unsigned int that is BigEndian.
-      data: frameData.slice(8) // discard the timestamp from frameData
-    });
+        timestamp: frameData.readUIntBE(0, 8), // Read an 8 byte unsigned int that is BigEndian.
+        data: frameData.slice(8) // discard the timestamp from frameData
+      });
+  });
+
+  client.on('testFrame', function(frameData){
+    client.broadcast.emit('frame', frameData);
+      var now  = Date.now();
+      console.log(now);
   });
 
 });
@@ -29,20 +35,20 @@ io.on('connection', function(client){
 // Routing
 // ********************************************************
 
-// Main view
-app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/views/index.html');
-});
+// // Main view
+// app.get('/', function (req, res) {
+//   res.sendFile(__dirname + '/views/index.html');
+// });
 
-// Web/Mobile app
-app.get('/web', function (req, res) {
-    res.sendFile(__dirname + '/views/web.html');
-});
+// // Web/Mobile app
+// app.get('/web', function (req, res) {
+//     res.sendFile(__dirname + '/views/web.html');
+// });
 
-// Cardboard App
-app.get('/cardboard', function (req, res) {
-    res.sendFile(__dirname + '/views/cardboard.html');
-});
+// // Cardboard App
+// app.get('/cardboard', function (req, res) {
+//     res.sendFile(__dirname + '/views/cardboard.html');
+// });
 
 // ********************************************************
 // Running
