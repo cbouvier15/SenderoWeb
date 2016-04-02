@@ -119,6 +119,7 @@ var Streaming = function(){
 					ThreeHelper.render();
 					console.log(frame.id, now, frame.playout_time);
 				}else{
+					// CHECK_RATE * 3 is based on stats
 					if (now-next > CHECK_RATE*3){
 						var frame;
 						do {

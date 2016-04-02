@@ -46,7 +46,7 @@ setTimeout(function(){
 
 		console.log(id + '-' + timestamp);
 		id = id + 1;
-		socket.emit('sendFrame', frame);
+		socket.emit('testFrame', frame);
 		
 	}, 1000/24);
 }, 5000);

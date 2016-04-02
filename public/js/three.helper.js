@@ -110,6 +110,10 @@ var ThreeHelper = function(){
 
     };
 
+    manager.onLoad = function (){
+      canvas_loader.hide();
+    }
+
     var loader = new THREE.OBJLoader( manager );
 
     /////////////////////////////////////
