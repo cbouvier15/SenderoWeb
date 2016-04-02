@@ -1,5 +1,5 @@
 var io = require('socket.io-client');
-// var socket = io.connect('http://54.201.212.24:8080');
+// var socket = io.connect('http://app.sendero.uy:8080');
 var socket = io.connect('http://localhost:8080');
 
 console.log("Connected");

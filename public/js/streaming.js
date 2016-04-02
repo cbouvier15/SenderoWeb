@@ -110,18 +110,25 @@ var Streaming = function(){
 
 			if (buffer.length > 0) {
 				var now = Date.now();
-				// XXX: Fix the inactive tab issue
-				if (now > buffer[0].playout_time) {
-					var frame = buffer.shift();
+				var next = buffer[0].playout_time;
 
+				if (now - next <= CHECK_RATE){
+					var frame = buffer.shift();
 					// Playout frame
-					// console.log(frame.data);
 					ThreeHelper.update(frame.data, pixels);
 					ThreeHelper.render();
-					// console.log(frame.id, now, frame.timestamp, frame.arrival_time, frame.playout_time, buffer.length);
+					console.log(frame.id, now, frame.playout_time);
+				}else{
+					if (now-next > CHECK_RATE*3){
+						var frame;
+						do {
+							frame = buffer.shift();
+							console.log("Discard frame", frame.id);
+						} while (frame !== undefined && now - frame.playout_time - (FIXED_BUFFERING_TIME_MS) > (FIXED_BUFFERING_TIME_MS/2));
+					}
 				}
 			} else {
-				console.log("Is buffering... ", buffer.length);
+				//console.log("Is buffering... ", buffer.length);
 			}
 		}, CHECK_RATE);
 	};
