@@ -20,7 +20,8 @@
     </style>
   </head>
   <body>
-    <div id="example"></div>
+
+  <div id="example"></div>
 
   <!-- Scripts -->
   <script src="js/socket.io.min.js"></script>
@@ -32,350 +33,32 @@
   <script src="js/StereoEffect.cardboard.js"></script>
   <script src="js/DeviceOrientationControls.cardboard.js"></script>
 
+  <script src="js/xml.parser.js"></script>
+  <script src="js/renderer.cardboard.js"></script>
+  <script src="js/streaming.js"></script>
+  <script src="js/heartcode-canvasloader-min.js"></script>
+
   <script>
-    var camera, scene, renderer, play;
-    var effect, controls;
-    var element, container;
-    var server = io.connect('alarrosa14.ddns.net:8080');
 
-    var clock = new THREE.Clock();
+    var clock = new THREE.Clock();   
 
-    init();
+    // ###########################################################
+    // Modules Initialization
+    // ###########################################################
+    XMLParser.init('conf/serverConf.xml');
+    ThreeHelper.initThree();
+    Streaming.init(XMLParser.getStreamingServerFullURL());
 
-    fullscreen();
-
-    loadPixelsFromXML('serverConf.xml', function(pixels){
-
-      animate();
-      render();
-
-      server.on('frame', function(what){
-        var bufView = new Uint8Array(what);
-
-        for (var i = 0; i <= 3*90; i =  i + 3) {
-          var R = bufView[i];
-          var G = bufView[i+1];
-          var B = bufView[i+2]; 
-
-          changePixelColor(pixels[i/3], R, G, B);
-        }
-
-        //render();
-      });
-
+    // ###########################################################
+    // Run
+    // ###########################################################
+    XMLParser.loadPixelsFromXML(function(pixels){
+      ThreeHelper.animate();
+      ThreeHelper.render();
+      Streaming.receive();
+      Streaming.play(pixels);
     });
 
-    function changePixelColor(object,r,g,b){
-      colorRGB = (r << 16) | (g << 8) | b;
-      object.traverse( function ( child ) {
-        if ( child instanceof THREE.Mesh ) {
-          child.material.color.set(colorRGB);
-        }
-      });
-    }
-
-    function init() {
-      renderer = new THREE.WebGLRenderer({antialias: true, sortObjects: false, alpha: true});
-      renderer.sortObjects = false;
-      renderer.setClearColor( 0x070707 , 1);
-      element = renderer.domElement;
-      container = document.getElementById('example');
-      container.appendChild(element);
-
-      effect = new THREE.StereoEffect(renderer);
-
-      play = new THREE.Object3D();
-
-      scene = new THREE.Scene();
-
-
-      var debugaxis = function(axisLength){
-          //Shorten the vertex function
-          function v(x,y,z){
-                  return new THREE.Vector3(x,y,z); 
-          }
-          
-          //Create axis (point1, point2, colour)
-          function createAxis(p1, p2, color){
-                  var line, lineGeometry = new THREE.Geometry(),
-                  lineMat = new THREE.LineBasicMaterial({color: color, lineWidth: 1});
-                  lineGeometry.vertices.push(p1, p2);
-                  line = new THREE.Line(lineGeometry, lineMat);
-
-                  scene.add(line);
-          }
-          
-          createAxis(v(-axisLength, 0, 0), v(axisLength, 0, 0), 0xFF0000);
-          createAxis(v(0, -axisLength, 0), v(0, axisLength, 0), 0x00FF00);
-          createAxis(v(0, 0, -axisLength), v(0, 0, axisLength), 0x0000FF);
-      };
-
-      //To use enter the axis length
-      //debugaxis(1000);
-
-
-      scene.add(play);
-
-
-
-
-      camera = new THREE.PerspectiveCamera(90, 1, 0.001, 700);
-      camera.position.set(0, 0, 300);
-      play.add(camera);
-
-      controls = new THREE.OrbitControls(camera, element);
-      controls.rotateUp(Math.PI / 4);
-      controls.target.set(
-        camera.position.x + 0.1,
-        camera.position.y,
-        camera.position.z
-      );
-      controls.noZoom = true;
-      controls.noPan = true;
-
-      function setOrientationControls(e) {
-        if (!e.alpha) {
-          return;
-        }
-
-        //controls = new THREE.DeviceOrientationControls(play);
-        controls = new DeviceOrientationController(play, renderer.domElement);
-        controls.connect();
-
-        element.addEventListener('click', fullscreen, false);
-
-        window.removeEventListener('deviceorientation', setOrientationControls, true);
-      }
-      window.addEventListener('deviceorientation', setOrientationControls, true);
-
-
-      var light = new THREE.HemisphereLight(0x777777, 0x000000, 0.6);
-      scene.add(light);
-
-      var texture = THREE.ImageUtils.loadTexture(
-        'textures/patterns/checker.png'
-      );
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat = new THREE.Vector2(50, 50);
-      texture.anisotropy = renderer.getMaxAnisotropy();
-
-      var material = new THREE.MeshPhongMaterial({
-        color: 0xffffff,
-        specular: 0xffffff,
-        shininess: 20,
-        shading: THREE.FlatShading,
-        map: texture
-      });
-
-      var geometry = new THREE.PlaneGeometry(1000, 1000);
-
-      var mesh = new THREE.Mesh(geometry, material);
-      mesh.rotation.x = -Math.PI / 2;
-      mesh.position.set(0,-101,0);
-
-      //mesh.renderDepth = 10000;
-
-
-      //play.add(mesh);
-      //scene.add(mesh);
-
-      window.addEventListener('resize', resize, false);
-      setTimeout(resize, 1);
-    }
-
-    //var i = 1;
-
-    function addObject(objModel, position, up, front, RGBColor, ID, objectGetter){
-
-      var onProgress = function ( xhr ) {
-      if ( xhr.lengthComputable ) {
-        var percentComplete = xhr.loaded / xhr.total * 100;
-        console.log( Math.round(percentComplete, 2) + '% downloaded' );
-      }
-      };
-
-      var onError = function ( xhr ) {
-      };
-
-      var manager = new THREE.LoadingManager();
-
-      manager.onProgress = function ( item, loaded, total ) {
-
-        console.log( item, loaded, total );
-
-      };
-
-      var loader = new THREE.OBJLoader( manager );
-
-      /////////////////////////////////////
-      var obj;
-      loader.load( objModel , function ( objectSrc ) {
-
-        var object = objectSrc.clone();
-
-        object.traverse( function ( child ) {
-
-        if ( child instanceof THREE.Mesh ) {
-
-            var material = new THREE.MeshBasicMaterial( { 
-              color: RGBColor,
-              side : THREE.DoubleSide
-            } );
-
-            child.material = material;
-            //child.material.renderDepth = i;
-            //child.renderDepth = i;
-            //console.log(child.renderDepth);
-            //i++;
-
-          }
-
-        } );
-
-        front = front.normalize();
-        up = up.normalize();
-
-        var rotFront = new THREE.Matrix4();
-
-        var qFront = new THREE.Quaternion();
-        qFront.setFromUnitVectors(new THREE.Vector3(1,0,0),front);
-
-        var newSourceUp = new THREE.Vector3(0,0,1); // hardcoded
-
-        var qUp = new THREE.Quaternion();
-        qUp.setFromUnitVectors(newSourceUp,up);
-
-        var qTot = qFront;
-
-        object.setRotationFromQuaternion(qTot);
-
-        object.position.set(position.x*1.1,position.y*1.1,position.z*1.1);
-
-        scene.add( object );
-        //play.add(object);
-
-        object.pixelId = ID;
-        objectGetter(object);
-        
-      }, onProgress, onError );
-
-      /////////////////////////////////////////
-    }
-
-    function tagToVector3(tag){
-      var x = parseFloat(tag.getAttribute('x'));
-      var y = parseFloat(tag.getAttribute('y'));
-      var z = parseFloat(tag.getAttribute('z'));
-      return new THREE.Vector3(x,y,z);
-    }
-
-    function loadPixelsFromXML(xmlPath, callBack){
-
-      var pixelsList = [];
-
-      if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
-        xmlhttp=new XMLHttpRequest();
-      }
-      else{// code for IE6, IE5
-        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-      }
-
-      xmlhttp.open("GET",xmlPath,false);
-      xmlhttp.send();
-      var xmlDoc=xmlhttp.responseXML;
-
-      console.log(xmlDoc);
-
-      var pixelsDoc = xmlDoc.getElementsByTagName("Pixel")
-      var pixelsQty = pixelsDoc.length
-
-      var loaderFunction = function(object){
-        pixelsList.push(object);
-        console.log("adding pixel...");
-        if (pixelsList.length == pixelsQty){
-          console.log("calling callback");
-          pixelsList = _.sortBy(pixelsList, function(o){ return o.pixelId; });
-          callBack(pixelsList);
-        }
-      }
-
-      for (var i = 0; i < pixelsDoc.length; i++) {
-
-        var pixel = pixelsDoc[i];
-        var ID = parseInt(pixel.getAttribute('id'));
-        var R = parseInt(pixel.getAttribute('r'));
-        var G = parseInt(pixel.getAttribute('g'));
-        var B = parseInt(pixel.getAttribute('b'));
-
-        var color = (R << 16) | (G << 8) | B;
-
-        var renderTag = pixel.getElementsByTagName('Render')[0]
-
-        var objectModelName = renderTag.getAttribute('mesh')
-
-        var frontTag = renderTag.getElementsByTagName('Front')[0]
-        var upTag = renderTag.getElementsByTagName('Up')[0]
-        var positionTag = renderTag.getElementsByTagName('Position')[0]
-
-        var front = tagToVector3(frontTag);
-        var up = tagToVector3(upTag);
-        var position = tagToVector3(positionTag);
-
-        var print = function(vect){
-          return '(' + vect.x + ',' + vect.y + ',' + vect.z + ')';
-        }
-
-        console.log('Pixel ' + i);
-        console.log('front ' + print(front));
-        console.log('up ' + print(up));
-        console.log('position ' + print(position));
-
-        addObject(objectModelName + '100.obj',position,up,front,color,ID,loaderFunction);
-      };
-    }
-
-    function resize() {
-      var width = container.offsetWidth;
-      var height = container.offsetHeight;
-
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-
-      renderer.setSize(width, height);
-      effect.setSize(width, height);
-    }
-
-    function update(dt) {
-      resize();
-
-      camera.updateProjectionMatrix();
-
-      controls.update(dt);
-    }
-
-    function render(dt) {
-      effect.render(scene, camera);
-    }
-
-    function animate(t) {
-      requestAnimationFrame(animate);
-
-      update(clock.getDelta());
-      render(clock.getDelta());
-    }
-
-    function fullscreen() {
-      if (container.requestFullscreen) {
-        container.requestFullscreen();
-      } else if (container.msRequestFullscreen) {
-        container.msRequestFullscreen();
-      } else if (container.mozRequestFullScreen) {
-        container.mozRequestFullScreen();
-      } else if (container.webkitRequestFullscreen) {
-        container.webkitRequestFullscreen();
-      }
-    }
   </script>
   </body>
 </html>

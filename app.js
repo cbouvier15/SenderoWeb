@@ -35,20 +35,20 @@ io.on('connection', function(client){
 // Routing
 // ********************************************************
 
-// // Main view
-// app.get('/', function (req, res) {
-//   res.sendFile(__dirname + '/views/index.html');
-// });
+// Main view
+app.get('/', function (req, res) {
+  res.sendFile(__dirname + '/views/index.html');
+});
 
-// // Web/Mobile app
-// app.get('/web', function (req, res) {
-//     res.sendFile(__dirname + '/views/web.html');
-// });
+// Web/Mobile app
+app.get('/web', function (req, res) {
+    res.sendFile(__dirname + '/views/web.html');
+});
 
-// // Cardboard App
-// app.get('/cardboard', function (req, res) {
-//     res.sendFile(__dirname + '/views/cardboard.html');
-// });
+// Cardboard App
+app.get('/cardboard', function (req, res) {
+    res.sendFile(__dirname + '/views/cardboard.html');
+});
 
 // ********************************************************
 // Running

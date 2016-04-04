@@ -68,7 +68,7 @@ if [ $# -gt 0 ]; then
 		cp -r public/conf public/meshes $VR_PATH
 		cp views/cardboard.html $VR_PATH
 		mv $VR_PATH"cardboard.html" $VR_PATH"index.html"
-		cp -r public/js/heartcode-canvasloader-min.js public/js/DeviceOrientationControls.cardboard.js public/js/StereoEffect.cardboard.js public/js/underscore-min.js public/js/OBJLoader.js public/js/socket.io.min.js public/js/OrbitControls.cardboard.js public/js/three.min.cardboard.js $VR_PATH"js"
+		cp -r public/js/xml.parser.js public/js/streaming.js public/js/renderer.cardboard.js public/js/heartcode-canvasloader-min.js public/js/DeviceOrientationControls.cardboard.js public/js/StereoEffect.cardboard.js public/js/underscore-min.js public/js/OBJLoader.js public/js/socket.io.min.js public/js/OrbitControls.cardboard.js public/js/three.min.cardboard.js $VR_PATH"js"
 		echo "Cardboard deployed!"
 		echo
 	fi
