@@ -247,8 +247,6 @@ var DeviceOrientationController = function ( object, domElement ) {
     var minusHalfAngle = 0;
 
     return function ( alpha, beta, gamma, screenOrientation ) {
-
-      //server.emit('log', gamma);
       
       deviceEuler.set( beta, alpha, - gamma, 'YXZ' );
 
