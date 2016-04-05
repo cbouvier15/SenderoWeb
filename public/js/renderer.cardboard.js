@@ -143,6 +143,12 @@ var ThreeHelper = function(){
 
       };
 
+      manager.onLoad = function (){
+        if(ID==XMLParser.getPixelsQty()-1){
+          canvas_loader.hide();
+        }
+      }
+
       var loader = new THREE.OBJLoader( manager );
 
       /////////////////////////////////////

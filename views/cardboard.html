@@ -6,10 +6,6 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <style>
-      body {
-        margin: 0px;
-        overflow: hidden;
-      }
       #example {
         position: absolute;
         top: 0;
@@ -17,10 +13,24 @@
         right: 0;
         bottom: 0;
       }
+
+      body{
+        margin:0px;
+        padding: 0px;
+        overflow:hidden;
+        background-color:black;
+      }
+      .wrapper {
+        position:absolute;
+        top:50%;
+        left:50%;
+      }
     </style>
   </head>
   <body>
 
+  <div id="canvasloader-container" class="wrapper">
+  </div>
   <div id="example"></div>
 
   <!-- Scripts -->
@@ -40,7 +50,23 @@
 
   <script>
 
-    var clock = new THREE.Clock();   
+    // Loader Animation
+    var canvas_loader = new CanvasLoader('canvasloader-container');
+    canvas_loader.setColor('#ffffff');
+    canvas_loader.setShape('spiral');
+    canvas_loader.setDiameter(116);
+    canvas_loader.setDensity(11);
+    canvas_loader.setRange(0.6); 
+    canvas_loader.setSpeed(1);
+    canvas_loader.show();
+
+    // This bit is only for positioning - not necessary
+    var loaderObj = document.getElementById("canvasLoader");
+    loaderObj.style.position = "absolute";
+    loaderObj.style["top"] = canvas_loader.getDiameter() * -0.5 + "px";
+    loaderObj.style["left"] = canvas_loader.getDiameter() * -0.5 + "px";
+
+    var clock = new THREE.Clock();
 
     // ###########################################################
     // Modules Initialization
