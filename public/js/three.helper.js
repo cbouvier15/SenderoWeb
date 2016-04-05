@@ -179,13 +179,15 @@ var ThreeHelper = function(){
 
   // ThreeJS stuffs
   function animate() {
-    requestAnimationFrame(animate);
-    controls.update();
+    setTimeout(function(){
+      requestAnimationFrame(animate);
+      controls.update();
+    }, 1000/30);
+    renderer.render(scene, camera);
   }
 
   // More ThreeJS stuffs
   function render() {
-    renderer.render( scene, camera );
   }
 
   function getScene() {

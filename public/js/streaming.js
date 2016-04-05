@@ -97,10 +97,11 @@ var Streaming = function(){
 			// Insert into playout buffer
 			if (frame.playout_time >= frame.arrival_time){
 				buffer.push(frame);
-			}else{
-				// Discarded frame
-				console.log("Discarded frame", frame.id, frame.playout_time, frame.arrival_time);
 			}
+			// else{
+				// Discarded frame
+				// console.log("Discarded frame", frame.id, frame.playout_time, frame.arrival_time);
+			// }
 		});
 	};
 
@@ -117,14 +118,14 @@ var Streaming = function(){
 					// Playout frame
 					ThreeHelper.update(frame.data, pixels);
 					ThreeHelper.render();
-					console.log(frame.id, now, frame.playout_time);
+					// console.log(frame.id, now, frame.playout_time);
 				}else{
 					// CHECK_RATE * 3 is based on stats
 					if (now-next > CHECK_RATE*3){
 						var frame;
 						do {
 							frame = buffer.shift();
-							console.log("Discard frame", frame.id);
+							// console.log("Discard frame", frame.id);
 						} while (frame !== undefined && now - frame.playout_time - (FIXED_BUFFERING_TIME_MS) > (FIXED_BUFFERING_TIME_MS/2));
 					}
 				}

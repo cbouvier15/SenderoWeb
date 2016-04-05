@@ -211,11 +211,13 @@ var ThreeHelper = function(){
     }
 
     function animate(t) {
-      requestAnimationFrame(animate);
+      setTimeout( function() {
+        requestAnimationFrame(animate);
 
-      resize();
-      camera.updateProjectionMatrix();
-      controls.update(clock.getDelta());
+        resize();
+        camera.updateProjectionMatrix();
+        controls.update(clock.getDelta());
+      }, 1000 / 30 );
 
       render(clock.getDelta());
     }
