@@ -48,5 +48,5 @@ setTimeout(function(){
 		id = id + 1;
 		socket.emit('testFrame', frame);
 		
-	}, 1000/24);
+	}, 1000/30);
 }, 5000);
