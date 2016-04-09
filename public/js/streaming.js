@@ -18,17 +18,14 @@ var Streaming = function(){
 	var CHECK_RATE = 1000/300;
 	var OFFSET_CALCULATION_BUFFER_SIZE = 720;
 
-	Array.prototype.min = function() {
-	  return Math.min.apply(null, this);
-	};
-
 	// ###########################################################
-    // Public Methods
+    // Methods
     // ###########################################################
 
     // Initialize module
 	function init(streaming_server_url){
 		streaming_server = io.connect(streaming_server_url);
+		Stats.init(streaming_server);
 	};
 
 	// ------------------------------------------------------------
@@ -42,15 +39,16 @@ var Streaming = function(){
 	d.fill(Number.MAX_SAFE_INTEGER);
 	var min = Number.MAX_SAFE_INTEGER;
 
+	Array.prototype.min = function() {
+	  return Math.min.apply(null, this);
+	};
+
 	function base_playout_time_calculation(packet){
 		var d_n = packet.arrival_time - packet.timestamp;
-
 		d[index] = d_n;
 		index = ((index + 1) % OFFSET_CALCULATION_BUFFER_SIZE);
-		
 		var offset = d.min();
 		min = offset;
-		// return base_playout_time for the current packet
 		return offset;
 	}
 
@@ -82,6 +80,8 @@ var Streaming = function(){
 	function receive(){
 		streaming_server.on('frame', function(frame){
 
+			Stats.AddReceivedPackets();
+
 			// Arrival time registering
 			frame.arrival_time = Date.now();
 			
@@ -92,48 +92,20 @@ var Streaming = function(){
 			var jitter = jitter_estimation(frame);
 			
 			// Payout time
+			Stats.currentOffset(base);
+			Stats.currentJitter(jitter);
 			frame.playout_time = frame.timestamp + base + jitter + FIXED_BUFFERING_TIME_MS;
 
 			// Insert into playout buffer
 			if (frame.playout_time >= frame.arrival_time){
 				buffer.push(frame);
 			}
-			// else{
-				// Discarded frame
-				// console.log("Discarded frame", frame.id, frame.playout_time, frame.arrival_time);
-			// }
+			else{
+				// Delayed frame
+				Stats.AddDelayedPackets();
+			}
 		});
 	};
-
-	// Extract the oldest frame from the buffer and play it.
-	// function play(pixels){
-	// 	setInterval(function(){
-
-	// 		if (buffer.length > 0) {
-	// 			var now = Date.now();
-	// 			var next = buffer[0].playout_time;
-
-	// 			if (now - next <= CHECK_RATE){
-	// 				var frame = buffer.shift();
-	// 				// Playout frame
-	// 				ThreeHelper.update(frame.data, pixels);
-	// 				ThreeHelper.render();
-	// 				console.log(frame.id, now, frame.timestamp, frame.arrival_time, frame.playout_time);
-	// 			}else{
-	// 				// CHECK_RATE * 3 is based on stats
-	// 				if (now-next > CHECK_RATE*3){
-	// 					var frame;
-	// 					do {
-	// 						frame = buffer.shift();
-	// 						// console.log("Discard frame", frame.id);
-	// 					} while (frame !== undefined && now - frame.playout_time - (FIXED_BUFFERING_TIME_MS) > (FIXED_BUFFERING_TIME_MS/2));
-	// 				}
-	// 			}
-	// 		} else {
-	// 			console.log("Is buffering... ", buffer.length);
-	// 		}
-	// 	}, CHECK_RATE);
-	// };
 
 	function play(pixels){
 		setInterval(function(){
@@ -147,16 +119,16 @@ var Streaming = function(){
 					// Playout frame
 					ThreeHelper.update(frame.data, pixels);
 					ThreeHelper.render();
-					// console.log(frame.id, now, frame.timestamp, frame.arrival_time, frame.playout_time, buffer.length);
+					Stats.addPacketDetails(frame.timestamp, frame.arrival_time, frame.playout_time, now, buffer.length);
 				}
 			} else {
-				console.log("Is buffering... ", buffer.length);
+				// console.log("Is buffering... ", buffer.length);
 			}
 		}, CHECK_RATE);
 	};
 
 	// ###########################################################
-    // Three Helper
+    // Streaming
     // ###########################################################
 
     var oPublic = {

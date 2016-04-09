@@ -1,0 +1,59 @@
+<dir id="dashboard">
+
+  <!-- NavBar -->
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <h1>Sendero <small>dashboard</small></h1>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <div class="container content">
+
+    <!-- Stats Summary -->
+    <div class="row">
+      
+      <div class="col-md-2 stat-element" ng-repeat="stat in summary">
+        <div class="stat-header">
+          <div class="text-center">{{ stat.name }}</div>
+        </div>
+        <div  ng-class="{'stat-status-warning': (stat.val > 37 || stat.val < 29 || stat.stdev > 5), 'stat-status-danger': (stat.val > 40 || stat.val < 26 || stat.stdev > 8), 'stat-status-ok': (stat.val > 29 && stat.val < 37)}"></div>
+        <div class="text-center">
+          <div class="stat-val">{{ stat.val | number : 1 }}</div>
+          <div class="stat-stdev">{{ stat.stdev | number : 1}}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <dir class="row" style="margin-top: 50px;">
+      <table class="table table-hover">
+
+        <thead style="background-color: #F3F3F3;">
+          <tr>
+            <td class="table-title">client</td>
+            <td class="table-title">ts</td>
+            <td class="table-title">arr</td>
+            <td class="table-title">pt</td>
+            <td class="table-title">rp</td>
+            <td class="table-title">rec/del/dis</td>
+            <td class="table-title">offset/jitter</td>
+          </tr>
+        </thead>
+
+        <tbody>
+        <tr ng-repeat="s in tableData">
+          <td>{{ s.clientId }}</td>
+          <td><span class="table-item-big">{{ s.tsFrameRateMean | number : 1 }}</span> <small>{{ s.tsFrameRateStdev | number : 1 }}</small></td>
+          <td><span class="table-item-big">{{ s.arrFrameRateMean | number : 1 }}</span> <small>{{ s.arrFrameRatStdev | number : 1 }}</small></td>
+          <td><span class="table-item-big">{{ s.ptFrameRateMean | number : 1 }}</span> <small>{{ s.ptFrameRateStdev | number : 1 }}</small></td>
+          <td><span class="table-item-big">{{ s.rpFrameRateMean | number : 1 }}</span> <small>{{ s.rpFrameRateStdev | number : 1 }}</small></td>
+          <td><span class="table-item-big">{{ s.receivedPackets | number : 1 }}/{{ s.delayedPackets }}/{{ s.discardedPackets }}</span></td>
+          <td><span class="table-item-big">{{ s.currentOffset | number : 1 }}/{{ s.currentJitter | number : 1 }}</span></td>
+        </tr>
+        </tbody>
+      </table>
+    </dir>
+
+  </div>
+</dir>
