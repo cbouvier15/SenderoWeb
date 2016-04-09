@@ -86,6 +86,7 @@ var Streaming = function(){
     // }
     function receive(){
         streaming_server.on('frame', function(frameData){
+			Stats.AddReceivedPackets();
             var frame;
             var frameDataBuffer = new Buffer(new Uint8Array(frameData));
             
@@ -99,8 +100,6 @@ var Streaming = function(){
              timestamp: frameDataBuffer.readUIntBE(0, 8), // Read an 8 byte unsigned int that is BigEndian.
              data: frameDataBuffer.slice(8) // discard the timestamp from frameBuffer
             }
-
-			Stats.AddReceivedPackets();
 
             // Arrival time registering
             frame.arrival_time = Date.now();
@@ -117,13 +116,14 @@ var Streaming = function(){
             // Insert into playout buffer
             if (frame.playout_time >= frame.arrival_time){
                 buffer.push(frame);}
-            else{
-                // Delayed frame
-                Stats.AddDelayedPackets();
-            }
+			else{
+				// Delayed frame
+				Stats.AddDelayedPackets();
+			}
+            
         });
     };
-
+	
 	function play(pixels){
 		setInterval(function(){
 
@@ -144,8 +144,34 @@ var Streaming = function(){
 		}, CHECK_RATE);
 	};
 
-	// ###########################################################
-    // Streaming
+                if (now - next <= CHECK_RATE){
+                    var frame = buffer.shift();
+                    // Playout frame
+                    ThreeHelper.update(frame.data, pixels);
+                    ThreeHelper.render();
+                    // console.log(frame.id, now, frame.playout_time);
+                }else{
+                    // CHECK_RATE * 3 is based on stats
+                    if (now-next > CHECK_RATE*3){
+                        var frame;
+                        do {
+                            frame = buffer.shift();
+                            // console.log("Discard frame", frame.id);
+                        } while (frame !== undefined && now - frame.playout_time - (FIXED_BUFFERING_TIME_MS) > (FIXED_BUFFERING_TIME_MS/2));
+                    }
+                }
+            } else {
+                //console.log("Is buffering... ", buffer.length);
+            }
+        }, CHECK_RATE);
+    };
+
+    function get_streaming_server() {
+        return streaming_server;
+    }
+
+    // ###########################################################
+    // Three Helper
     // ###########################################################
 
     var oPublic = {

@@ -41,40 +41,45 @@
   <script src="js/interaction.js"></script>
   <script src="js/heartcode-canvasloader-min.js"></script>  
 
+  <script src="js/lz4.min.js"></script>
+
   <script>
-    // Loader Animation
-    var canvas_loader = new CanvasLoader('canvasloader-container');
-    canvas_loader.setColor('#ffffff');
-    canvas_loader.setShape('spiral');
-    canvas_loader.setDiameter(116);
-    canvas_loader.setDensity(11);
-    canvas_loader.setRange(0.6); 
-    canvas_loader.setSpeed(1);
-    canvas_loader.show();
 
-    // This bit is only for positioning - not necessary
-    var loaderObj = document.getElementById("canvasLoader");
-    loaderObj.style.position = "absolute";
-    loaderObj.style["top"] = canvas_loader.getDiameter() * -0.5 + "px";
-    loaderObj.style["left"] = canvas_loader.getDiameter() * -0.5 + "px";
-    
-    // ###########################################################
-    // Modules Initialization
-    // ###########################################################
-    XMLParser.init('conf/serverConf.xml');
-    ThreeHelper.initThree(XMLParser.getFPS());
-    Streaming.init(XMLParser.getStreamingServerFullURL());
-    Interaction.init(XMLParser.getInteractionServerFullURL(), XMLParser.getFPS(), ThreeHelper.getScene(), ThreeHelper.getRenderer(), ThreeHelper.getCamera());
+  var Buffer = require('buffer').Buffer;
+  var lz4 = require('lz4');
+  // Loader Animation
+  var canvas_loader = new CanvasLoader('canvasloader-container');
+  canvas_loader.setColor('#ffffff');
+  canvas_loader.setShape('spiral');
+  canvas_loader.setDiameter(116);
+  canvas_loader.setDensity(11);
+  canvas_loader.setRange(0.6); 
+  canvas_loader.setSpeed(1);
+  canvas_loader.show();
 
-    // ###########################################################
-    // Run
-    // ###########################################################
-    XMLParser.loadPixelsFromXML(function(pixels){
-      ThreeHelper.animate();
-      ThreeHelper.render();
-      Streaming.receive();
-      Streaming.play(pixels);
-    });
+  // This bit is only for positioning - not necessary
+  var loaderObj = document.getElementById("canvasLoader");
+  loaderObj.style.position = "absolute";
+  loaderObj.style["top"] = canvas_loader.getDiameter() * -0.5 + "px";
+  loaderObj.style["left"] = canvas_loader.getDiameter() * -0.5 + "px";
+  
+  // ###########################################################
+  // Modules Initialization
+  // ###########################################################
+  XMLParser.init('conf/serverConf.xml');
+  ThreeHelper.initThree(XMLParser.getFPS());
+  Streaming.init(XMLParser.getStreamingServerFullURL(), Buffer, lz4);
+  Interaction.init(XMLParser.getInteractionServerFullURL(), XMLParser.getFPS(), ThreeHelper.getScene(), ThreeHelper.getRenderer(), ThreeHelper.getCamera());
+
+  // ###########################################################
+  // Run
+  // ###########################################################
+  XMLParser.loadPixelsFromXML(function(pixels){
+    ThreeHelper.animate();
+    ThreeHelper.render();
+    Streaming.receive();
+    Streaming.play(pixels);
+  });
   </script>
 
 </html>
