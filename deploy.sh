@@ -41,14 +41,15 @@ if [ $# -gt 0 ]; then
 
 	if $DEPLOY_SS ; then
 		echo "--> Deploying Streaming Server to $STREAMING_PATH ..."
-		cp -r app.js package.json node_modules $STREAMING_PATH
+		cp -r app.js package.json node_modules README.md $STREAMING_PATH
 		echo "Streaming Server deployed!"
 		echo
 	fi
 
 	if $DEPLOY_SENDERO ; then
 		echo "--> Deploying Sendero to $SENDERO_PATH ..."
-		cp -r views/index.html public/styles public/images $SENDERO_PATH
+		cp -r views/index.html public/styles public/images public/views $SENDERO_PATH
+		cp -r public/js/socket.io.min.js $SENDERO_PATH"js"
 		echo "Sendero deployed!"
 		echo
 	fi
@@ -58,7 +59,7 @@ if [ $# -gt 0 ]; then
 		cp -r public/conf public/meshes $WEB_PATH
 		cp views/web.html $WEB_PATH
 		mv $WEB_PATH"web.html" $WEB_PATH"index.html" 
-		cp -r public/js/heartcode-canvasloader-min.js public/js/OBJLoader.js public/js/interaction.js public/js/streaming.js public/js/three.min.web.js public/js/xml.parser.js public/js/OrbitControls.web.js public/js/socket.io.min.js public/js/three.helper.js public/js/underscore-min.js $WEB_PATH"js"
+		cp -r public/js/stats.js public/js/heartcode-canvasloader-min.js public/js/OBJLoader.js public/js/interaction.js public/js/streaming.js public/js/three.min.web.js public/js/xml.parser.js public/js/OrbitControls.web.js public/js/socket.io.min.js public/js/three.helper.js public/js/underscore-min.js $WEB_PATH"js"
 		echo "Web deployed!"
 		echo
 	fi
@@ -68,7 +69,7 @@ if [ $# -gt 0 ]; then
 		cp -r public/conf public/meshes $VR_PATH
 		cp views/cardboard.html $VR_PATH
 		mv $VR_PATH"cardboard.html" $VR_PATH"index.html"
-		cp -r public/js/xml.parser.js public/js/streaming.js public/js/renderer.cardboard.js public/js/heartcode-canvasloader-min.js public/js/DeviceOrientationControls.cardboard.js public/js/StereoEffect.cardboard.js public/js/underscore-min.js public/js/OBJLoader.js public/js/socket.io.min.js public/js/OrbitControls.cardboard.js public/js/three.min.cardboard.js $VR_PATH"js"
+		cp -r public/js/stats.js public/js/xml.parser.js public/js/streaming.js public/js/renderer.cardboard.js public/js/heartcode-canvasloader-min.js public/js/DeviceOrientationControls.cardboard.js public/js/StereoEffect.cardboard.js public/js/underscore-min.js public/js/OBJLoader.js public/js/socket.io.min.js public/js/OrbitControls.cardboard.js public/js/three.min.cardboard.js $VR_PATH"js"
 		echo "Cardboard deployed!"
 		echo
 	fi

@@ -1,19 +1,92 @@
-<!doctype html>
-<html>
-	<head>
-	    <meta charset="utf-8">
-	    <title>Sendero: A lightning system for artistic production</title>
-	    <!-- Styles -->
-	    <link rel="stylesheet" type="text/css" href="styles/style.css">
-	</head>
-	<body>
-		<div id="sendero-index" class="background-image">
-			<p class="sendero-index-title">Sendero</p>
-			<p class="sendero-index-subtitle">A lightning system for artistic production</p>
-			<div class="sendero-index-icons">
-				<a href="http://web.sendero.uy" id="web-logo"></a>
-				<a href="http://vr.sendero.uy" id="cardboard-logo"></a>
-			</div>
-		</div>
-	</body>
+<!DOCTYPE html>
+<html ng-app="sendero">
+
+<head>
+    <meta charset="utf-8">
+	<title>Sendero: A lightning system for artistic production</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Styles -->
+	<link href="styles/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <div ui-view></div>
+  
+  <!-- Angular -->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+  <!-- UI-Router -->
+  <script src="//angular-ui.github.io/ui-router/release/angular-ui-router.js"></script>
+  <!-- Socket.IO -->
+  <script src="js/socket.io.min.js"></script>
+  
+  <!-- App Script -->
+  <script>
+    var sendero = angular.module('sendero', ["ui.router"])
+    
+    // ############################################################
+    // Sendero Angular App Configuration
+    // ############################################################
+    sendero.config(function($stateProvider, $urlRouterProvider){
+     
+      $urlRouterProvider.otherwise("/")
+      
+      $stateProvider
+        .state('home', {
+            url: "/",
+            templateUrl: "views/home.html"
+        })
+          
+        .state('dashboard', {
+            url: "/dashboard",
+            templateUrl: "views/dashboard.html",
+            controller: "DashboardController"
+        })
+    })
+
+    // ############################################################
+    // Dashboard Controller
+    // ############################################################
+    sendero.controller('DashboardController', ['$scope', function($scope) {
+
+    		// Connect to Streaming Server
+	  		// var socket = io.connect('http://localhost:8080');
+	  		var socket = io.connect('http://app.sendero.uy:8080');
+
+	  		// Register as an Admin
+	  		socket.emit("registerAdmin");
+	
+			// Initialize data sources	  		
+	  		$scope.tableData = [];
+	  		$scope.summary = [];
+    
+    		// Steraming Server connection
+		    socket.on('refreshStats', function(stats, newOne){
+		        
+		        console.log('stats', stats, newOne);
+
+		        var newStats = [
+		        	{"name": "Cli", "val": stats.clients},
+		        	{"name": "ts", "stdev": stats.tsStdev, "val":stats.tsMean }, 
+		        	{"name": "arr", "stdev": stats.arrStdev, "val": stats.arrMean}, 
+		        	{"name": "pt", "stdev": stats.ptStdev, "val": stats.ptMean} , 
+		        	{"name": "rpt", "stdev": stats.rpStdev, "val": stats.rpMean}, 
+		        	{"name": "buff", "stdev": stats.buffStdev, "val": stats.buffMean}
+		        ];
+		        
+				$scope.$apply(function () {
+					$scope.summary = newStats;
+					$scope.tableData.push(newOne);          
+				});
+		        
+		    });
+	}]);
+
+  </script>
+
+</body>
+
 </html>
+
+

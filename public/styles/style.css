@@ -1,5 +1,5 @@
-body {
-  font: 50px "Helvetica Neue", Arial, sans-serif;
+#sendero-index {
+	font: 50px "Helvetica Neue", Arial, sans-serif;	
 }
 
 #sendero-index .sendero-index-title {
@@ -44,3 +44,55 @@ body {
     background-repeat: no-repeat;
     float: left;
 }
+
+#dashboard .content {
+	margin-top: 100px;
+}
+
+#dashboard .stat-header {
+	font-size: -webkit-xxx-large;
+}
+
+#dashboard .stat-val {
+	font-size: -webkit-xxx-large;
+    font-weight: 100;
+}
+
+#dashboard .stat-stdev {
+    font-weight: 100;
+}
+
+#dashboard .stat-element {
+	border-radius: 5px;
+    border-width: 1px;
+}
+
+#dashboard .stat-status-danger {
+	background-color: #F44336;
+	height: 3px;
+}
+
+#dashboard .stat-status-warning {
+	background-color: #FFC107;
+	height: 3px;
+}
+
+#dashboard .stat-status-ok {
+	background-color: #388E3C;
+	height: 3px;
+}
+
+#dashboard .stat-status-other {
+	background-color: #1976D2;
+	height: 3px;
+}
+
+#dashboard .table-title {
+	font-weight: bold;
+    font-size: x-large;
+}
+
+#dashboard .table-item-big {
+	font-weight: bold;
+}
+
