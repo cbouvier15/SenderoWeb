@@ -51,8 +51,8 @@
     sendero.controller('DashboardController', ['$scope', function($scope) {
 
     		// Connect to Streaming Server
-	  		var socket = io.connect('http://localhost:8080');
-	  		// var socket = io.connect('http://app.sendero.uy:8080');
+	  		// var socket = io.connect('http://localhost:8080');
+	  		var socket = io.connect('http://app.sendero.uy:8080');
 
 	  		// Register as an Admin
 	  		socket.emit("registerAdmin");
