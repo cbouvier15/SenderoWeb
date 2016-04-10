@@ -11,7 +11,7 @@ var Stats = function(){
     // Private
     // ###########################################################
 
-    var SEND_STATS_INTERVAL_MS = 10000;
+    var SEND_STATS_INTERVAL_MS = 30000;
     var SEND_STATS = true;
 
 	var stats = {
@@ -36,13 +36,12 @@ var Stats = function(){
 		'rpFrameRateMean': 0,
 		'rpFrameRateStdev': 0,
 
-		'bufferSizeMean': 0,
-		'bufferSizeStddev': 0
+		'bufferSizeMean': 0
 	};
 
-	var tsPrev = 0, arrPrev = 0, ptPrev = 0, rptPrev = 0, buffPrev = 0;
+	var tsPrev = 0, arrPrev = 0, ptPrev = 0, rptPrev = 0;
 	var tsSum = 0, arrSum = 0, ptSum = 0, rptSum = 0, buffSum = 0;
-	var tsSum_2 = 0, arrSum_2 = 0, ptSum_2 = 0, rptSum_2 = 0, buffSum_2 = 0;
+	var tsSum_2 = 0, arrSum_2 = 0, ptSum_2 = 0, rptSum_2 = 0;
 	var tsQty = 1, arrQty = 1, ptQty = 1, rptQty = 1, bufQty = 1;
 
 	var _streaming_server = null;
@@ -83,7 +82,6 @@ var Stats = function(){
 			stats.rpFrameRateStdev = stdev(rptSum, rptSum_2,rptQty);
 
 			stats.bufferSizeMean = mean(buffSum,bufQty);
-			stats.bufferSizeStddev = stdev(buffSum, buffSum_2,bufQty);
 
 			stats.timestamp = Date.now();
 
@@ -107,15 +105,13 @@ var Stats = function(){
 			rptSum += rpt-rptPrev;
 			rptSum_2 += Math.pow(rpt-rptPrev, 2);
 			rptQty += 1;
-			buffSum += buff-buffPrev;
-			buffSum_2 +=  Math.pow(buff-buffPrev, 2);
+			buffSum += buff;
 			bufQty += 1;
 		}
 		tsPrev = ts;
 		arrPrev = arr;
 		ptPrev = pt;
 		rptPrev = rpt;
-		buffPrev = buff;
 	}
 
 	function AddReceivedPackets(){

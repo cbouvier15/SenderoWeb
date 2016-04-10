@@ -51,8 +51,8 @@
     sendero.controller('DashboardController', ['$scope', function($scope) {
 
     		// Connect to Streaming Server
-	  		// var socket = io.connect('http://localhost:8080');
-	  		var socket = io.connect('http://app.sendero.uy:8080');
+	  		var socket = io.connect('http://localhost:8080');
+	  		// var socket = io.connect('http://app.sendero.uy:8080');
 
 	  		// Register as an Admin
 	  		socket.emit("registerAdmin");
@@ -63,8 +63,6 @@
     
     		// Steraming Server connection
 		    socket.on('refreshStats', function(stats, newOne){
-		        
-		        console.log('stats', stats, newOne);
 
 		        var newStats = [
 		        	{"name": "Cli", "val": stats.clients},
@@ -72,12 +70,12 @@
 		        	{"name": "arr", "stdev": stats.arrStdev, "val": stats.arrMean}, 
 		        	{"name": "pt", "stdev": stats.ptStdev, "val": stats.ptMean} , 
 		        	{"name": "rpt", "stdev": stats.rpStdev, "val": stats.rpMean}, 
-		        	{"name": "buff", "stdev": stats.buffStdev, "val": stats.buffMean}
+		        	{"name": "buff", "val": stats.buffMean}
 		        ];
 		        
 				$scope.$apply(function () {
 					$scope.summary = newStats;
-					$scope.tableData.push(newOne);          
+					$scope.tableData.unshift(newOne);          
 				});
 		        
 		    });
