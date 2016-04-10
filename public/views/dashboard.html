@@ -3,7 +3,11 @@
   <!-- NavBar -->
   <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container">
-      <h1>Sendero <small>dashboard</small></h1>
+      <div class="row">
+        <dir class="col-md-6"><h1>Sendero <small>dashboard</small></h1></dir>
+        <dir class="col-md-6 text-right"><h1><small><a ui-sref="home">Home</a> | <a href="http://web.sendero.uy">Web</a> | <a href="http://vr.sendero.uy">VR</a></small></h1></dir>
+      </div>
+      
     </div>
   </nav>
 
@@ -13,11 +17,11 @@
     <!-- Stats Summary -->
     <div class="row">
       
-      <div class="col-md-2 stat-element" ng-repeat="stat in summary">
+      <div class="col-md-2 col-sm-6 col-xs-6 stat-element" ng-repeat="stat in summary">
         <div class="stat-header">
           <div class="text-center">{{ stat.name }}</div>
         </div>
-        <div  ng-class="{'stat-status-warning': (stat.val > 37 || stat.val < 29 || stat.stdev > 5), 'stat-status-danger': (stat.val > 40 || stat.val < 26 || stat.stdev > 8), 'stat-status-ok': (stat.val > 29 && stat.val < 37)}"></div>
+        <div  ng-class="{'stat-status-danger': (stat.val > 40 || stat.val < 26 || stat.stdev > 8), 'stat-status-warning': ((stat.val > 37 && stat.val < 41) || (stat.val < 29 && stat.val > 25) || (stat.stdev > 5 && stat.stdev < 8)), 'stat-status-ok': (stat.val > 28 && stat.val < 38)}"></div>
         <div class="text-center">
           <div class="stat-val">{{ stat.val | number : 1 }}</div>
           <div class="stat-stdev">{{ stat.stdev | number : 1}}</div>
@@ -25,13 +29,15 @@
       </div>
     </div>
 
+    <div ng-show="summary.length == 0" class="alert alert-warning" role="alert"><p class="text-center">Waiting for data...</p></div>
+
     <!-- Table -->
-    <dir class="row" style="margin-top: 50px;">
+    <div class="row" style="margin-top: 50px;">
       <table class="table table-hover">
 
         <thead style="background-color: #F3F3F3;">
           <tr>
-            <td class="table-title">client</td>
+            <td class="table-title"><input ng-model="search" placeholder="Client" style="width: 170px;border-radius: 4px;border-style: hidden;outline: none;"></input></td>
             <td class="table-title">ts</td>
             <td class="table-title">arr</td>
             <td class="table-title">pt</td>
@@ -42,7 +48,7 @@
         </thead>
 
         <tbody>
-        <tr ng-repeat="s in tableData">
+        <tr ng-repeat="s in tableData | filter:search">
           <td>{{ s.clientId }}</td>
           <td><span class="table-item-big">{{ s.tsFrameRateMean | number : 1 }}</span> <small>{{ s.tsFrameRateStdev | number : 1 }}</small></td>
           <td><span class="table-item-big">{{ s.arrFrameRateMean | number : 1 }}</span> <small>{{ s.arrFrameRatStdev | number : 1 }}</small></td>
@@ -53,7 +59,10 @@
         </tr>
         </tbody>
       </table>
-    </dir>
+
+      <div ng-show="tableData.length == 0" class="alert alert-warning" role="alert"><p class="text-center">Waiting for data...</p></div>
+
+    </div>
 
   </div>
 </dir>

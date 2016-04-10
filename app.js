@@ -8,13 +8,14 @@ var io = require('socket.io')(server);
 require('socket.io-stream')(io);
 var MongoClient = require('mongodb').MongoClient;
 
-var dashbboardClient = null;
+app.use(express.static('public'));
+
+var dashbboardClient = [];
 var connectedUsers = -1;
 
 // ********************************************************
 // Main
 // ********************************************************
-app.use(express.static(__dirname + '/public'));
 
 // Connect to senderoDB
 MongoClient.connect("mongodb://localhost:27017/senderoDB", function(err, db) {
@@ -30,7 +31,7 @@ MongoClient.connect("mongodb://localhost:27017/senderoDB", function(err, db) {
     // Listen for Socket.io connections
     io.on('connection', function(client){
 
-      console.log("Connected client: %s", client.id);
+      console.log("Connected client: ", client.id);
       connectedUsers++;
 
       /*
@@ -51,10 +52,10 @@ MongoClient.connect("mongodb://localhost:27017/senderoDB", function(err, db) {
        * Stats
        */
       client.on('stat', function(stats){
-        console.log("Stats received from: %s" + client.id);
+        console.log("Stats received from: ", client.id);
         stats.clientId = client.id;
         collection.insert(stats);
-        if (dashbboardClient){
+        if (dashbboardClient.length > 0){
           collection.aggregate(
             [
               {$group :
@@ -67,15 +68,16 @@ MongoClient.connect("mongodb://localhost:27017/senderoDB", function(err, db) {
                   ptStdev: { $avg: "$ptFrameRateStdev"}, 
                   rpMean: { $avg: "$rpFrameRateMean"}, 
                   rpStdev: { $avg: "$rpFrameRateStdev"}, 
-                  buffMean: { $avg: "$bufferSizeMean"}, 
-                  buffStdev: { $avg: "$bufferSizeStddev"}, 
+                  buffMean: { $avg: "$bufferSizeMean"},
                   count: {$sum: 1}
                 }
               }
             ], function(err, result) {
               var data = result[0];
               data.clients = connectedUsers;
-              dashbboardClient.emit('refreshStats', data, stats);
+              for (var i = dashbboardClient.length - 1; i >= 0; i--) {
+                dashbboardClient[i].emit('refreshStats', data, stats);
+              }
             });
         }
       });
@@ -84,15 +86,15 @@ MongoClient.connect("mongodb://localhost:27017/senderoDB", function(err, db) {
        * Dashboard user
        */
       client.on('registerAdmin', function(){
-        console.log("Admin Registered with Id: %s", client.id);
-        dashbboardClient = client;
+        console.log("Admin Registered with Id: ", client.id);
+        dashbboardClient.push(client);
       });
 
       /*
        * User Disconnection
        */
       client.on('disconnect', function() {
-        console.log('User disconnected: %s', client.id);
+        console.log("User disconnected: ", client.id);
         connectedUsers--;
       });
 
