@@ -13,6 +13,7 @@ var Stats = function(){
 
     var SEND_STATS_INTERVAL_MS = 30000;
     var SEND_STATS = true;
+    var READY_TO_SEND = false;
 
 	var stats = {
 		'timestamp' : 0,
@@ -69,23 +70,25 @@ var Stats = function(){
 	function activateStreamingStats(){
 		setInterval(function(){
 
-			stats.tsFrameRateMean = mean(tsSum,tsQty);
-			stats.tsFrameRateStdev = stdev(tsSum, tsSum_2,tsQty);
+			if (READY_TO_SEND){
+				stats.tsFrameRateMean = mean(tsSum,tsQty);
+				stats.tsFrameRateStdev = stdev(tsSum, tsSum_2,tsQty);
 
-			stats.arrFrameRateMean = mean(arrSum,arrQty);
-			stats.arrFrameRatStdev = stdev(arrSum, arrSum_2,arrQty);
+				stats.arrFrameRateMean = mean(arrSum,arrQty);
+				stats.arrFrameRatStdev = stdev(arrSum, arrSum_2,arrQty);
 
-			stats.ptFrameRateMean = mean(ptSum,ptQty);
-			stats.ptFrameRateStdev = stdev(ptSum, ptSum_2,ptQty);
+				stats.ptFrameRateMean = mean(ptSum,ptQty);
+				stats.ptFrameRateStdev = stdev(ptSum, ptSum_2,ptQty);
 
-			stats.rpFrameRateMean = mean(rptSum,rptQty);
-			stats.rpFrameRateStdev = stdev(rptSum, rptSum_2,rptQty);
+				stats.rpFrameRateMean = mean(rptSum,rptQty);
+				stats.rpFrameRateStdev = stdev(rptSum, rptSum_2,rptQty);
 
-			stats.bufferSizeMean = mean(buffSum,bufQty);
+				stats.bufferSizeMean = mean(buffSum,bufQty);
 
-			stats.timestamp = Date.now();
+				stats.timestamp = Date.now();
 
-			_streaming_server.emit('stat', stats);
+				_streaming_server.emit('stat', stats);
+			}
 		}, SEND_STATS_INTERVAL_MS);
 	};
 
@@ -116,6 +119,7 @@ var Stats = function(){
 
 	function AddReceivedPackets(){
 		stats.receivedPackets += 1;
+		READY_TO_SEND = true;
 	}
 
 	function AddDelayedPackets(){
@@ -133,7 +137,6 @@ var Stats = function(){
 	function currentJitter(newVal){
 		stats.currentJitter = newVal;
 	}
-
 
 	// ###########################################################
 	// Stats
