@@ -38,7 +38,10 @@ MongoClient.connect("mongodb://localhost:27017/senderoDB", function(err, db) {
        * Streaming
        */
       client.on('sendFrame', function(frameData){
-    	 client.broadcast.emit('frame', frameData);
+    	  client.broadcast.emit('frame', {
+          timestamp: frameData.readUIntBE(0, 8), // Read an 8 byte unsigned int that is BigEndian.
+          data: frameData.slice(8) // discard the timestamp from frameBuffer
+        });
   	  });
 
       /*

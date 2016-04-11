@@ -85,22 +85,9 @@ var Streaming = function(){
     //  data: []
     // }
     function receive(){
-        streaming_server.on('frame', function(frameData){
-            var frame;
-            var frameDataBuffer = new Buffer(new Uint8Array(frameData));
-            
-            try {
-                frameDataBuffer = lz4.decode(frameDataBuffer);
-            } catch(e) {
-                // data was not lz4 encoded -> do nothing!   
-            }
+        streaming_server.on('frame', function(frame){
 
-            frame = {
-             timestamp: frameDataBuffer.readUIntBE(0, 8), // Read an 8 byte unsigned int that is BigEndian.
-             data: frameDataBuffer.slice(8) // discard the timestamp from frameBuffer
-            }
-
-			Stats.AddReceivedPackets();
+            Stats.AddReceivedPackets();
 
             // Arrival time registering
             frame.arrival_time = Date.now();
@@ -113,6 +100,14 @@ var Streaming = function(){
             
             // Payout time
             frame.playout_time = frame.timestamp + base + jitter + FIXED_BUFFERING_TIME_MS;
+
+            var frameDataBuffer = new Buffer(new Uint8Array(frame.data));
+            
+            try {
+                frame.data = lz4.decode(frameDataBuffer);
+            } catch(e) {
+                // data was not lz4 encoded -> do nothing!   
+            }
 
             // Insert into playout buffer
             if (frame.playout_time >= frame.arrival_time){
@@ -129,10 +124,13 @@ var Streaming = function(){
 
 			if (buffer.length > 0) {
 				var now = Date.now();
-				// XXX: Fix the inactive tab issue
-				if (now > buffer[0].playout_time) {
-					var frame = buffer.shift();
+                
+                var frame;
 
+                while (buffer.length > 0 && now > buffer[0].playout_time)
+                    frame = buffer.shift();
+
+				if (frame && now > frame.playout_time) {
 					// Playout frame
 					ThreeHelper.update(frame.data, pixels);
 					ThreeHelper.render();
