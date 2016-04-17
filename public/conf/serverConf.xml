@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<Configuration pixelQuantity='91' installationName='Pentakis' fps='30'>
+<Configuration pixelQuantity='91' installationName='Pentakis' fps='30' senderoServerUDPPort='8080'>
 	<Meshes>
 		<Mesh name='cylinderShort' path='meshes/cylinderShort100.obj' />
 		<Mesh name='cylinderLong' path='meshes/cylinderLong100.obj' />

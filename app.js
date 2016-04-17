@@ -1,13 +1,30 @@
 // ********************************************************
 // Dependencies and Settings
 // ********************************************************
+var __ = require('underscore');
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 require('socket.io-stream')(io);
 var MongoClient = require('mongodb').MongoClient;
-var net = require('net');
+
+var fs = require('fs'),
+    xml2js = require('xml2js');
+
+/***
+ * Read and parse serverConf.xml to get streamingServer address
+ */
+var senderoServerUDPPort;
+var parser = new xml2js.Parser();
+fs.readFile(__dirname + '/public/conf/serverConf.xml', function(err, data) {
+    parser.parseString(data, function (err, result) {
+        senderoServerUDPPort = result.Configuration.$.senderoServerUDPPort ? result.Configuration.$.senderoServerUDPPort : 8080;
+    });
+});
+
+var dgram = require('dgram');
+var udpSocket = dgram.createSocket('udp4');
 
 app.use(express.static('public'));
 
@@ -31,20 +48,28 @@ MongoClient.connect("mongodb://localhost:27017/senderoDB", function(err, db) {
     var connectedUsers = 0;;
 
     // Listen for Sendero Server connection
-    net.createServer(function(socket) {
-
+    udpSocket.on('message', function(data, rinfo) {
       /*
        * Streaming
        */
-      socket.on('data', function (data) {
-        console.log(data.length);
-        io.sockets.emit('frame', {
-          timestamp: data.readUIntBE(0, 8), // Read an 8 byte unsigned int that is BigEndian.
-          data: data.slice(8) // discard the timestamp from frameBuffer
-        });
+      io.sockets.emit('frame', {
+        timestamp: data.readUIntBE(0, 8), // Read an 8 byte unsigned int that is BigEndian.
+        data: data.slice(8) // discard the timestamp from frameBuffer
       });
 
-    }).listen(8080);
+    });
+
+    udpSocket.on('listening', function(){
+      var address = udpSocket.address();
+      console.log(`\n  ---->   Listening for Sendero Server streaming packets in ${address.port} udp port\n\n`);
+    });
+
+    udpSocket.on('error', function(err) {
+      console.log(`--------------> Streaming Server error:\n${err.stack}`);
+      udpSocket.close();
+    });
+
+    udpSocket.bind(senderoServerUDPPort);
     
     // Listen for Socket.io connections
     io.on('connection', function(client){
@@ -146,3 +171,18 @@ server.listen(8082, function () {
   console.log("*** SenderoWeb listening on port 8082 ... ***");
   console.log("*********************************************");
 });
+
+function exitHandler(options, err) {
+  server.close();
+  if (err) console.log(err.stack);
+  if (options.exit) process.exit();
+}
+
+//do something when app is closing
+process.on('exit', exitHandler.bind(null,{cleanup:true}));
+
+//catches ctrl+c event
+process.on('SIGINT', exitHandler.bind(null, {exit:true}));
+
+//catches uncaught exceptions
+process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
