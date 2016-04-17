@@ -7,6 +7,7 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 require('socket.io-stream')(io);
 var MongoClient = require('mongodb').MongoClient;
+var net = require('net');
 
 app.use(express.static('public'));
 
@@ -27,22 +28,35 @@ MongoClient.connect("mongodb://localhost:27017/senderoDB", function(err, db) {
 
   // Create or open Collection: streamingStats
   db.createCollection('streamingStats', function(err, collection) {
+    var connectedUsers = 0;;
 
+    // Listen for Sendero Server connection
+    net.createServer(function(socket) {
+
+      /*
+       * Streaming
+       */
+      socket.on('data', function (data) {
+        console.log(data.length);
+        io.sockets.emit('frame', {
+          timestamp: data.readUIntBE(0, 8), // Read an 8 byte unsigned int that is BigEndian.
+          data: data.slice(8) // discard the timestamp from frameBuffer
+        });
+      });
+
+    }).listen(8080);
+    
     // Listen for Socket.io connections
     io.on('connection', function(client){
 
       console.log("Connected client: ", client.id);
       connectedUsers++;
-
-      /*
-       * Streaming
-       */
-      client.on('sendFrame', function(frameData){
-    	  client.broadcast.emit('frame', {
-          timestamp: frameData.readUIntBE(0, 8), // Read an 8 byte unsigned int that is BigEndian.
-          data: frameData.slice(8) // discard the timestamp from frameBuffer
-        });
-  	  });
+      // client.on('sendFrame', function(frameData){
+      //   client.broadcast.emit('frame', {
+      //     timestamp: frameData.readUIntBE(0, 8), // Read an 8 byte unsigned int that is BigEndian.
+      //     data: frameData.slice(8) // discard the timestamp from frameBuffer
+      //   });
+      // });
 
       /*
        * Test Streaming
@@ -102,8 +116,7 @@ MongoClient.connect("mongodb://localhost:27017/senderoDB", function(err, db) {
       });
 
     });
-});
-
+  });
 });
 
 // ********************************************************
@@ -117,19 +130,19 @@ app.get('/', function (req, res) {
 
 // Web/Mobile app
 app.get('/web', function (req, res) {
-    res.sendFile(__dirname + '/views/web.html');
+  res.sendFile(__dirname + '/views/web.html');
 });
 
 // Cardboard App
 app.get('/cardboard', function (req, res) {
-    res.sendFile(__dirname + '/views/cardboard.html');
+  res.sendFile(__dirname + '/views/cardboard.html');
 });
 
 // ********************************************************
 // Running
 // ********************************************************
-server.listen(8080, function () {
+server.listen(8082, function () {
   console.log("*********************************************");
-  console.log("*** SenderoWeb listening on port 8080 ... ***");
+  console.log("*** SenderoWeb listening on port 8082 ... ***");
   console.log("*********************************************");
 });
