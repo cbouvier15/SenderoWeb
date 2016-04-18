@@ -14,7 +14,9 @@ var Streaming = function(){
     var Buffer, lz4;
 
     var streaming_server;
-    var buffer = [];
+    var buffer = new Array(256);
+    var countOfFramesInBuff = 0;
+    var frameToPlayIdx = -1;
 
     var FIXED_BUFFERING_TIME_MS = 300;
     var CHECK_RATE = 1000/300;
@@ -109,10 +111,14 @@ var Streaming = function(){
                 // data was not lz4 encoded -> do nothing!   
             }
 
+            if (frameToPlayIdx === -1)
+                frameToPlayIdx = frame.sequence;
+
             // Insert into playout buffer
             if (frame.playout_time >= frame.arrival_time){
-                buffer.push(frame);}
-            else{
+                buffer[frame.sequence] = frame;
+                countOfFramesInBuff++;
+            } else {
                 // Delayed frame
                 Stats.AddDelayedPackets();
             }
@@ -122,23 +128,37 @@ var Streaming = function(){
 	function play(pixels){
 		setInterval(function(){
 
-			if (buffer.length > 0) {
-				var now = Date.now();
-                
+            if (countOfFramesInBuff > 0) {
+                var now = Date.now();
                 var frame;
 
-                while (buffer.length > 0 && now > buffer[0].playout_time)
-                    frame = buffer.shift();
+                var bufferIter = frameToPlayIdx;
 
-				if (frame && now > frame.playout_time) {
-					// Playout frame
-					ThreeHelper.update(frame.data, pixels);
-					ThreeHelper.render();
-					Stats.addPacketDetails(frame.timestamp, frame.arrival_time, frame.playout_time, now, buffer.length);
-				}
-			} else {
-				// console.log("Is buffering... ", buffer.length);
-			}
+                while (!buffer[bufferIter])
+                    bufferIter = (bufferIter + 1) % 256;
+
+                while (countOfFramesInBuff > 0 && now > buffer[bufferIter].playout_time) {
+                    countOfFramesInBuff--;
+                    frame = buffer[bufferIter];
+                    buffer[bufferIter] = null;
+                    if (countOfFramesInBuff > 0)
+                        while (!buffer[bufferIter])
+                            bufferIter = (bufferIter + 1) % 256;
+                }
+
+                if (frame && now > frame.playout_time) {
+                    frameToPlayIdx = (frame.sequence + 1) % 256;
+                    console.log(frameToPlayIdx);
+
+                    // Playout frame
+                    ThreeHelper.update(frame.data, pixels);
+                    ThreeHelper.render();
+                    Stats.addPacketDetails(frame.timestamp, frame.arrival_time, frame.playout_time, now, buffer.length);
+                }
+
+            } else {
+             // console.log("Is buffering... ", buffer.length);
+            }
 		}, CHECK_RATE);
 	};
 
