@@ -86,6 +86,10 @@ var Streaming = function(){
     //  timestamp: epoch milliseconds,
     //  data: []
     // }
+    function mod(n, m) {
+        return ((n % m) + m) % m;
+    }
+
     function receive(){
         streaming_server.on('frame', function(frame){
 
@@ -116,8 +120,51 @@ var Streaming = function(){
 
             // Insert into playout buffer
             if (frame.playout_time >= frame.arrival_time){
+
+                if (buffer[frame.sequence]) {
+                    console.log(`Replaced calculated frame ${frame.sequence} with the correct one`);
+                    countOfFramesInBuff--;
+                }
+
                 buffer[frame.sequence] = frame;
                 countOfFramesInBuff++;
+
+                // Generate missing frames if necessary
+                if (countOfFramesInBuff > 1) {
+                    var countOfMissingPackets = 0;
+                    var i = frame.sequence;
+
+                    while (!buffer[mod(i - 1, 256)]) {
+                        i = Math.abs(mod(i - 1, 256));
+                        countOfMissingPackets++;
+                    }
+
+                    if (countOfMissingPackets > 0 && countOfMissingPackets < 15) {
+                        // There are packets missing!
+                        Stats.addMisorderedPackets(countOfMissingPackets);
+                        
+                        var referenceFrame = buffer[mod(i - 1, 256)];
+                        var playoutTimeOffsetChunk = (frame.playout_time - referenceFrame.playout_time) / (countOfMissingPackets + 1);
+                        var count = 1;
+                        for (var j = i; j !== frame.sequence && count < countOfFramesInBuff; j = mod(j + 1, 256), count++) {
+                            var newFrame = {};
+                            newFrame.calculated = true;
+                            newFrame.sequence = j;
+                            newFrame.playout_time = buffer[mod(j - 1, 256)].playout_time + playoutTimeOffsetChunk;
+                            newFrame.data = _.map(referenceFrame.data, function(subpixel, index) {
+                                var subpixelOffsetChunk = count * (frame.data[index] - subpixel) / (countOfMissingPackets + 1);
+                                return Math.round(subpixel + subpixelOffsetChunk);
+                            });
+
+                            if (!buffer[j]) {
+                                buffer[j] = newFrame;
+                                countOfFramesInBuff++;
+                            }
+
+                        }
+                    }
+                }
+
             } else {
                 // Delayed frame
                 Stats.AddDelayedPackets();
@@ -146,14 +193,18 @@ var Streaming = function(){
                             bufferIter = (bufferIter + 1) % 256;
                 }
 
+                // Here, if frame is defined, then it is the frame to be transmitted.
+
                 if (frame && now > frame.playout_time) {
                     frameToPlayIdx = (frame.sequence + 1) % 256;
-                    console.log(frameToPlayIdx);
 
                     // Playout frame
                     ThreeHelper.update(frame.data, pixels);
                     ThreeHelper.render();
-                    Stats.addPacketDetails(frame.timestamp, frame.arrival_time, frame.playout_time, now, buffer.length);
+                    if (!frame.calculated)
+                        Stats.addPacketDetails(frame.timestamp, frame.arrival_time, frame.playout_time, now, buffer.length);
+                    else
+                        Stats.addCalculatedPacketsPlayed();
                 }
 
             } else {

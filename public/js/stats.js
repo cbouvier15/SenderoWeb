@@ -37,7 +37,11 @@ var Stats = function(){
 		'rpFrameRateMean': 0,
 		'rpFrameRateStdev': 0,
 
-		'bufferSizeMean': 0
+		'bufferSizeMean': 0,
+
+		'calculatedPacketsPlayed': 0,
+		'misorderedPackets': 0,
+
 	};
 
 	var tsPrev = 0, arrPrev = 0, ptPrev = 0, rptPrev = 0;
@@ -134,6 +138,14 @@ var Stats = function(){
 		stats.currentOffset = newVal;
 	}
 
+	function addCalculatedPacketsPlayed() {
+		stats.calculatedPacketsPlayed++;
+	}
+
+	function addMisorderedPackets(count) {
+		stats.misorderedPackets += count;
+	}
+
 	function currentJitter(newVal){
 		stats.currentJitter = newVal;
 	}
@@ -148,6 +160,8 @@ var Stats = function(){
 		AddReceivedPackets: AddReceivedPackets,
 		AddDelayedPackets: AddDelayedPackets,
 		AddDiscardedPackets: AddDiscardedPackets,
+		addCalculatedPacketsPlayed: addCalculatedPacketsPlayed,
+		addMisorderedPackets: addMisorderedPackets,
 		currentOffset: currentOffset,
 		currentJitter: currentJitter,
 	};
