@@ -170,9 +170,9 @@ app.get('/cardboard', function (req, res) {
 // ********************************************************
 // Running
 // ********************************************************
-server.listen(8082, function () {
+server.listen(8080, function () {
   console.log("*********************************************");
-  console.log("*** SenderoWeb listening on port 8082 ... ***");
+  console.log("*** SenderoWeb listening on port 8080 ... ***");
   console.log("*********************************************");
 });
 
