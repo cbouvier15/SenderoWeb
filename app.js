@@ -54,13 +54,12 @@ MongoClient.connect("mongodb://localhost:27017/senderoDB", function(err, db) {
       /*
        * Streaming
        */
-      if (Math.random() > 0.2)
-        io.sockets.emit('frame', {
-          timestamp: data.readUIntBE(0, 8), // Read an 8 byte unsigned int that is BigEndian.
-          sequence: data.readUInt8(8), // Read a 1 byte unsigned int.
-          compression: (data.readUInt8(9) & COMPRESSION_ENABLED_MASK) == COMPRESSION_ENABLED_MASK,
-          data: data.slice(10) // discard the timestamp from frameBuffer
-        });
+      io.sockets.emit('frame', {
+        timestamp: data.readUIntBE(0, 8), // Read an 8 byte unsigned int that is BigEndian.
+        sequence: data.readUInt8(8), // Read a 1 byte unsigned int.
+        compression: (data.readUInt8(9) & COMPRESSION_ENABLED_MASK) == COMPRESSION_ENABLED_MASK,
+        data: data.slice(10) // discard the timestamp from frameBuffer
+      });
 
     });
 
