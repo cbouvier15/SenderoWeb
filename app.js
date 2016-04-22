@@ -12,6 +12,8 @@ var MongoClient = require('mongodb').MongoClient;
 var fs = require('fs'),
     xml2js = require('xml2js');
 
+const COMPRESSION_ENABLED_MASK = 0x01;
+
 /***
  * Read and parse serverConf.xml to get streamingServer address
  */
@@ -55,8 +57,9 @@ MongoClient.connect("mongodb://localhost:27017/senderoDB", function(err, db) {
       if (Math.random() > 0.2)
         io.sockets.emit('frame', {
           timestamp: data.readUIntBE(0, 8), // Read an 8 byte unsigned int that is BigEndian.
-          sequence: data.readUIntBE(8, 1), // Read a 1 byte unsigned int.
-          data: data.slice(9) // discard the timestamp from frameBuffer
+          sequence: data.readUInt8(8), // Read a 1 byte unsigned int.
+          compression: (data.readUInt8(9) & COMPRESSION_ENABLED_MASK) == COMPRESSION_ENABLED_MASK,
+          data: data.slice(10) // discard the timestamp from frameBuffer
         });
 
     });

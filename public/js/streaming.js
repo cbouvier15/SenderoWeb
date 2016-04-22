@@ -107,13 +107,10 @@ var Streaming = function(){
             // Payout time
             frame.playout_time = frame.timestamp + base + jitter + FIXED_BUFFERING_TIME_MS;
 
-            var frameDataBuffer = new Buffer(new Uint8Array(frame.data));
+            frame.data = new Buffer(new Uint8Array(frame.data));
             
-            try {
-                frame.data = lz4.decode(frameDataBuffer);
-            } catch(e) {
-                // data was not lz4 encoded -> do nothing!   
-            }
+            if (frame.compression)
+                frame.data = lz4.decode(frame.data);
 
             if (frameToPlayIdx === -1)
                 frameToPlayIdx = frame.sequence;
