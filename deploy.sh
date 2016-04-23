@@ -41,6 +41,8 @@ if [ $# -gt 0 ]; then
 
 	if $DEPLOY_SS ; then
 		echo "--> Deploying Streaming Server to $STREAMING_PATH ..."
+		mkdir $STREAMING_PATH/public
+		cp -r public/conf $STREAMING_PATH/public/
 		cp -r app.js package.json node_modules README.md $STREAMING_PATH
 		echo "Streaming Server deployed!"
 		echo
