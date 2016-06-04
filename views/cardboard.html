@@ -79,7 +79,7 @@
     // ###########################################################
     XMLParser.init('conf/serverConf.xml');
     ThreeHelper.initThree();
-    Streaming.init(XMLParser.getStreamingServerFullURL());
+    Streaming.init(XMLParser.getStreamingServerFullURL(), Buffer, lz4);
 
     // ###########################################################
     // Run
